@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HomeLink - Maintenance Request #1024</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../static/css/styles.css">
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div>
+      <div class="brand">
+        <div class="brand-icon"><i class="fa-solid fa-house"></i></div>
+        <span class="brand-name">HomeLink</span>
+      </div>
+      <nav class="nav">
+        <a href="manager_dashboard.html" class="active"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a>
+        <a href="#"><i class="fa-solid fa-building"></i> Properties</a>
+        <a href="#"><i class="fa-solid fa-screwdriver-wrench"></i> Maintenance Requests</a>
+        <a href="#"><i class="fa-solid fa-users"></i> Contractors</a>
+        <a href="#"><i class="fa-solid fa-chart-bar"></i> Reports</a>
+        <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+      </nav>
+    </div>
+    <div class="logout-wrap">
+      <a href="../index.html"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="bell"><i class="fa-regular fa-bell"></i><span class="dot"></span></div>
+      <div class="user">
+        <div class="avatar"></div>
+        <div class="user-info">
+          <p class="user-name"></p>
+          <p class="user-role">Property Manager</p>
+        </div>
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+    </div>
+
+    <div class="content">
+      <a href="manager_dashboard.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back</a>
+
+      <div class="request-head">
+        <h1>Maintenance Request</h1>
+        <span class="badge badge-open">Open</span>
+      </div>
+
+      <div class="grid-3">
+        <div>
+          <div class="summary-card">
+            <div>
+              <h3></h3>
+              <p></p>
+              <p></p>
+            </div>
+          </div>
+
+          <div class="detail-tabs">
+            <button class="detail-tab active" onclick="setTab(this, 'panel-details')">Details</button>
+            <button class="detail-tab" onclick="setTab(this, 'panel-comments')">Comments</button>
+            <button class="detail-tab" onclick="setTab(this, 'panel-attachments')">Attachments</button>
+          </div>
+
+          <div class="detail-panel-wrap">
+            <div class="tab-panel active" id="panel-details">
+              <div class="thumbs"></div>
+              <p style="margin-top:16px;font-size:14px;color:#475569;"></p>
+            </div>
+            <div class="tab-panel" id="panel-comments">
+              <p class="empty-state" style="padding:0;">No comments yet.</p>
+            </div>
+            <div class="tab-panel" id="panel-attachments">
+              <p class="empty-state" style="padding:0;">No attachments yet.</p>
+            </div>
+          </div>
+        </div>
+
+        <form class="side-panel" action="/api/requests" method="POST" onsubmit="return false;">
+          <div class="side-field">
+            <p>Issue Type</p>
+            <p style="font-weight:500;color:#334155;margin:0;"></p>
+          </div>
+          <div class="side-field">
+            <p>Priority</p>
+            <p style="font-weight:500;color:#334155;margin:0;"></p>
+          </div>
+          <div class="side-field">
+            <p>Assigned Contractor</p>
+            <select name="contractor">
+              <option value="">Unassigned</option>
+            </select>
+          </div>
+          <div class="side-field">
+            <p>Status</p>
+            <select name="status">
+              <option>Open</option>
+              <option>Assigned</option>
+              <option>In Progress</option>
+              <option>Completed</option>
+            </select>
+          </div>
+          <div class="side-actions">
+            <button type="submit" class="btn-primary">Update Status</button>
+            <button type="button" class="btn-secondary">Message Contractor</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../static/js/app.js"></script>
+</body>
+</html>
