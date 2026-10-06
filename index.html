@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HomeLink - Sign In</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="static/css/styles.css">
+</head>
+<body>
+
+<div class="login-page">
+  <div class="login-hero">
+    <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&q=80" alt="Apartment building">
+    <div class="login-hero-overlay"></div>
+    <div class="login-hero-brand">
+      <div class="brand-icon"><i class="fa-solid fa-house"></i></div>
+      <div>
+        <p>HomeLink</p>
+        <p>Property Management Made Simple</p>
+      </div>
+    </div>
+    <div class="login-hero-text">
+      <h1>Report Issues.<br>Home Management Made Easier.</h1>
+      <p>A faster, easier way for tenants, property managers, and contractors to work together.</p>
+    </div>
+  </div>
+
+  <div class="login-form-side">
+    <div class="login-form">
+      <h2>Welcome Back!</h2>
+      <p class="page-sub">Sign in to your account</p>
+
+      <div class="role-tabs">
+        <div class="role-tab active" onclick="selectRole(this, 'tenant')">Tenant</div>
+        <div class="role-tab" onclick="selectRole(this, 'manager')">Manager</div>
+        <div class="role-tab" onclick="selectRole(this, 'contractor')">Contractor</div>
+      </div>
+
+      <form id="login-form" action="/login" method="POST" onsubmit="return false;">
+        <input type="hidden" id="selected-role" name="role" value="tenant">
+
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com">
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="password-wrap">
+            <input type="password" id="password" name="password" placeholder="Enter your password">
+            <button type="button" onclick="togglePassword(this)"><i class="fa-regular fa-eye"></i></button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="checkbox-label">
+            <input type="checkbox" name="remember" checked>
+            Remember me
+          </label>
+          <button type="button" class="forgot-link">Forgot password?</button>
+        </div>
+
+        <button type="button" class="btn-primary btn-block" onclick="signIn()">Sign in</button>
+      </form>
+
+      <div class="divider">or continue with</div>
+
+      <button class="btn-social"><i class="fa-brands fa-google"></i> Continue with Google</button>
+
+      <p class="signup-line">Don't have an account? <a href="#">Sign up</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="static/js/app.js"></script>
+</body>
+</html>

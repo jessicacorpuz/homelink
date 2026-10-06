@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HomeLink - Report a Maintenance Request</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../static/css/styles.css">
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div>
+      <div class="brand">
+        <div class="brand-icon"><i class="fa-solid fa-house"></i></div>
+        <span class="brand-name">HomeLink</span>
+      </div>
+      <nav class="nav">
+        <a href="tenant_dashboard.html"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a>
+        <a href="#"><i class="fa-solid fa-building"></i> My Properties</a>
+        <a href="my_requests.html" class="active"><i class="fa-solid fa-screwdriver-wrench"></i> Maintenance Requests</a>
+        <a href="#"><i class="fa-solid fa-comment"></i> Messages</a>
+        <a href="#"><i class="fa-solid fa-user"></i> Profile</a>
+      </nav>
+    </div>
+    <div class="logout-wrap">
+      <a href="../index.html"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="bell"><i class="fa-regular fa-bell"></i><span class="dot"></span></div>
+      <div class="user">
+        <div class="avatar">AR</div>
+        <div class="user-info">
+          <p class="user-name">Alex Rivera</p>
+          <p class="user-role">Tenant</p>
+        </div>
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+    </div>
+
+    <div class="content">
+      <h1 class="page-title">Report a Maintenance Request</h1>
+      <p class="page-sub">Let us know what's wrong. Add photos or videos if possible.</p>
+
+      <div class="stepper">
+        <div class="step active" data-step="1">
+          <div class="step-circle">1</div>
+          <div class="step-label">Issue Details</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" data-step="2">
+          <div class="step-circle">2</div>
+          <div class="step-label">Upload Media</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" data-step="3">
+          <div class="step-circle">3</div>
+          <div class="step-label">Review &amp; Submit</div>
+        </div>
+      </div>
+
+      <form id="request-form" class="panel" action="/api/requests" method="POST" onsubmit="return false;">
+
+        <div class="tab-panel step-panel active" data-step="1">
+          <div class="form-group">
+            <label for="property">Property</label>
+            <select id="property" name="property">
+              <option value="" selected disabled>Select a property</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="unit">Unit</label>
+            <select id="unit" name="unit">
+              <option value="" selected disabled>Select a unit</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="issue-type">Issue Type</label>
+            <select id="issue-type" name="issue_type">
+              <option value="" selected disabled>Select an issue type</option>
+              <option>Plumbing</option>
+              <option>HVAC</option>
+              <option>Electrical</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" placeholder="Leaking faucet">
+          </div>
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="3" placeholder="The faucet in the kitchen is leaking. It started yesterday and it's getting worse."></textarea>
+          </div>
+        </div>
+
+        <div class="tab-panel step-panel" data-step="2">
+          <label>Add Photos or Videos (optional)</label>
+          <div class="dropzone">
+            <input type="file" name="attachments" multiple accept="image/*,video/*" style="display:none" id="file-input">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <p>Drag and drop files here, or click to browse</p>
+            <p class="hint">Supports JPG, PNG, MP4 (Max 30MB each)</p>
+          </div>
+        </div>
+
+        <div class="tab-panel step-panel" data-step="3">
+          <p style="font-size:14px;font-weight:600;color:#1e293b;margin:0 0 8px;">Review your request</p>
+          <div class="review-row"><span>Property</span><span id="review-property"></span></div>
+          <div class="review-row"><span>Unit</span><span id="review-unit"></span></div>
+          <div class="review-row"><span>Issue Type</span><span id="review-issue-type"></span></div>
+          <div class="review-row"><span>Title</span><span id="review-title"></span></div>
+          <div class="review-row" style="border-bottom:none;">
+            <span>Description</span>
+            <span id="review-description" style="max-width:260px;text-align:right;"></span>
+          </div>
+        </div>
+
+        <div class="panel-actions">
+          <button type="button" id="step-back" class="btn-secondary" onclick="stepBack()">Cancel</button>
+          <button type="button" id="step-next" class="btn-primary" onclick="stepNext()">Next</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="../static/js/app.js"></script>
+</body>
+</html>

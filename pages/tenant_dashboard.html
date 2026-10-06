@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HomeLink - Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../static/css/styles.css">
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div>
+      <div class="brand">
+        <div class="brand-icon"><i class="fa-solid fa-house"></i></div>
+        <span class="brand-name">HomeLink</span>
+      </div>
+      <nav class="nav">
+        <a href="tenant_dashboard.html" class="active"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a>
+        <a href="#"><i class="fa-solid fa-building"></i> My Properties</a>
+        <a href="my_requests.html"><i class="fa-solid fa-screwdriver-wrench"></i> Maintenance Requests</a>
+        <a href="#"><i class="fa-solid fa-comment"></i> Messages</a>
+        <a href="#"><i class="fa-solid fa-user"></i> Profile</a>
+      </nav>
+    </div>
+    <div class="logout-wrap">
+      <a href="../index.html"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="bell"><i class="fa-regular fa-bell"></i><span class="dot"></span></div>
+      <div class="user">
+        <div class="avatar"></div>
+        <div class="user-info">
+          <p class="user-name"></p>
+          <p class="user-role">Tenant</p>
+        </div>
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+    </div>
+
+    <div class="content">
+      <h1 class="page-title">Good morning!</h1>
+      <p class="page-sub">Here's what's happening with your properties.</p>
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-icon bg-blue"><i class="fa-solid fa-building"></i></div>
+          <div><p class="stat-value">0</p><p class="stat-label">Properties</p></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon bg-rose"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+          <div><p class="stat-value">0</p><p class="stat-label">Open Requests</p></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon bg-amber"><i class="fa-solid fa-clock"></i></div>
+          <div><p class="stat-value">0</p><p class="stat-label">In Progress</p></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon bg-emerald"><i class="fa-solid fa-check"></i></div>
+          <div><p class="stat-value">0</p><p class="stat-label">Completed</p></div>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <h2>My Properties</h2>
+        <button class="link-btn">View All</button>
+      </div>
+      <div class="properties-grid">
+        <p class="empty-state">No properties yet.</p>
+      </div>
+
+      <div class="section-header">
+        <h2>Recent Maintenance Requests</h2>
+        <a href="my_requests.html" class="link-btn">View All</a>
+      </div>
+      <div class="request-list">
+        <p class="empty-state">No maintenance requests yet.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../static/js/app.js"></script>
+</body>
+</html>
