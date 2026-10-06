@@ -79,7 +79,9 @@
 
                 <div class="user">
 
-                    <div class="avatar" id="top-avatar"></div>
+                    <div class="avatar" id="top-avatar">
+                        <span>U</span>
+                    </div>
 
                     <div class="user-info">
 
@@ -116,7 +118,9 @@
                         <div
                             class="profile-avatar"
                             id="profile-avatar"
-                        ></div>
+                        >
+                            <span>U</span>
+                        </div>
 
                         <div class="profile-photo-section">
 
@@ -130,7 +134,7 @@
                             <input
                                 id="avatar-input"
                                 type="file"
-                                accept="image/*"
+                                accept="image/png,image/jpeg,image/jpg"
                                 hidden
                             >
 
@@ -225,129 +229,257 @@
 
     <script>
 
-        let userId;
+        let userId = "";
         let avatarUrl = "";
 
 
         function initials(name) {
 
-            return (name || "U")
+            const value = (name || "User")
+                .trim();
+
+            if (!value) {
+                return "U";
+            }
+
+            return value
                 .split(/\s+/)
-                .filter(Boolean)
                 .slice(0, 2)
-                .map(x => x[0])
+                .map(word => word.charAt(0))
                 .join("")
                 .toUpperCase();
 
         }
 
 
-        async function loadProfile() {
+        function setAvatar() {
 
-            const {
-                data,
-                error
-            } = await window.supabaseClient.auth.getUser();
+            const profileAvatar =
+                document.getElementById("profile-avatar");
+
+            const topAvatar =
+                document.getElementById("top-avatar");
+
+            const name =
+                document.getElementById("full-name").value;
+
+            const letters =
+                initials(name);
 
 
-            if (error || !data.user) {
+            if (avatarUrl) {
 
-                location.href = "../index.html";
-                return;
+                profileAvatar.innerHTML = `
+                    <img
+                        src="${avatarUrl}"
+                        alt="Profile photo"
+                    >
+                `;
+
+                topAvatar.innerHTML = `
+                    <img
+                        src="${avatarUrl}"
+                        alt="Profile photo"
+                    >
+                `;
+
+            } else {
+
+                profileAvatar.innerHTML = `
+                    <span>${letters}</span>
+                `;
+
+                topAvatar.innerHTML = `
+                    <span>${letters}</span>
+                `;
 
             }
-
-
-            userId = data.user.id;
-
-
-            const {
-                data: profile,
-                error: profileError
-            } = await window.supabaseClient
-                .from("profiles")
-                .select(
-                    "full_name,email,phone,avatar_url,role"
-                )
-                .eq("id", userId)
-                .single();
-
-
-            if (profileError) {
-
-                alert(profileError.message);
-                return;
-
-            }
-
-
-            document.getElementById("full-name").value =
-                profile.full_name || "";
-
-
-            document.getElementById("email").value =
-                profile.email || data.user.email || "";
-
-
-            document.getElementById("phone").value =
-                profile.phone || "";
-
-
-            document.getElementById("role").value =
-                profile.role || "";
-
-
-            document.getElementById("top-name").textContent =
-                profile.full_name ||
-                data.user.email ||
-                "User";
-
-
-            document.getElementById("top-role").textContent =
-                profile.role ||
-                "User";
-
-
-            avatarUrl = profile.avatar_url || "";
-
-            setAvatar();
 
         }
 
 
-        function setAvatar() {
+        async function loadProfile() {
 
-            const avatars = [
-                document.getElementById("profile-avatar"),
-                document.getElementById("top-avatar")
-            ];
+            try {
 
-
-            avatars.forEach(el => {
-
-                if (!el) {
-                    return;
-                }
+                const {
+                    data: authData,
+                    error: authError
+                } = await window.supabaseClient.auth.getUser();
 
 
-                if (avatarUrl) {
+                if (authError) {
 
-                    el.innerHTML = `
-                        <img
-                            src="${avatarUrl}"
-                            alt="Profile photo"
-                        >
-                    `;
-
-                } else {
-
-                    el.textContent = initials(
-                        document.getElementById("full-name").value
+                    console.error(
+                        "Auth error:",
+                        authError
                     );
 
+                    window.location.href =
+                        "../index.html";
+
+                    return;
+
                 }
 
-            });
+
+                if (!authData.user) {
+
+                    window.location.href =
+                        "../index.html";
+
+                    return;
+
+                }
+
+
+                const user =
+                    authData.user;
+
+                userId =
+                    user.id;
+
+
+                const authName =
+                    user.user_metadata?.full_name ||
+                    user.user_metadata?.name ||
+                    "";
+
+
+                const authEmail =
+                    user.email ||
+                    "";
+
+
+                const {
+                    data: profile,
+                    error: profileError
+                } = await window.supabaseClient
+                    .from("profiles")
+                    .select(
+                        "full_name,email,phone,avatar_url,role"
+                    )
+                    .eq("id", userId)
+                    .maybeSingle();
+
+
+                if (profileError) {
+
+                    console.error(
+                        "Profile error:",
+                        profileError
+                    );
+
+                    document.getElementById(
+                        "full-name"
+                    ).value = authName;
+
+                    document.getElementById(
+                        "email"
+                    ).value = authEmail;
+
+                    document.getElementById(
+                        "role"
+                    ).value =
+                        user.user_metadata?.role ||
+                        "Tenant";
+
+                    document.getElementById(
+                        "top-name"
+                    ).textContent =
+                        authName ||
+                        authEmail ||
+                        "Tenant";
+
+                    document.getElementById(
+                        "top-role"
+                    ).textContent =
+                        user.user_metadata?.role ||
+                        "Tenant";
+
+                    setAvatar();
+
+                    alert(
+                        "Your profile could not be loaded from the profiles table. Check the Supabase profiles policies."
+                    );
+
+                    return;
+
+                }
+
+
+                const fullName =
+                    profile?.full_name ||
+                    authName ||
+                    authEmail ||
+                    "Tenant";
+
+
+                const email =
+                    profile?.email ||
+                    authEmail;
+
+
+                const phone =
+                    profile?.phone ||
+                    "";
+
+
+                const role =
+                    profile?.role ||
+                    user.user_metadata?.role ||
+                    "Tenant";
+
+
+                avatarUrl =
+                    profile?.avatar_url ||
+                    "";
+
+
+                document.getElementById(
+                    "full-name"
+                ).value = fullName;
+
+
+                document.getElementById(
+                    "email"
+                ).value = email;
+
+
+                document.getElementById(
+                    "phone"
+                ).value = phone;
+
+
+                document.getElementById(
+                    "role"
+                ).value = role;
+
+
+                document.getElementById(
+                    "top-name"
+                ).textContent = fullName;
+
+
+                document.getElementById(
+                    "top-role"
+                ).textContent = role;
+
+
+                setAvatar();
+
+            } catch (error) {
+
+                console.error(
+                    "Unexpected error:",
+                    error
+                );
+
+                alert(
+                    "Something went wrong while loading your profile."
+                );
+
+            }
 
         }
 
@@ -356,7 +488,7 @@
             .getElementById("avatar-input")
             .addEventListener(
                 "change",
-                async event => {
+                async function(event) {
 
                     const file =
                         event.target.files[0];
@@ -367,26 +499,48 @@
                     }
 
 
-                    if (file.size > 5 * 1024 * 1024) {
+                    if (
+                        file.type !== "image/jpeg" &&
+                        file.type !== "image/png"
+                    ) {
 
                         alert(
-                            "Image must be 5MB or smaller."
+                            "Please choose a JPG or PNG image."
                         );
+
+                        event.target.value = "";
 
                         return;
 
                     }
 
 
+                    if (
+                        file.size >
+                        5 * 1024 * 1024
+                    ) {
+
+                        alert(
+                            "Image must be 5MB or smaller."
+                        );
+
+                        event.target.value = "";
+
+                        return;
+
+                    }
+
+
+                    const extension =
+                        file.type === "image/png"
+                            ? "png"
+                            : "jpg";
+
+
                     const path =
                         userId +
-                        "/avatar-" +
-                        Date.now() +
-                        "-" +
-                        file.name.replace(
-                            /[^a-zA-Z0-9._-]/g,
-                            "_"
-                        );
+                        "/profile." +
+                        extension;
 
 
                     const upload =
@@ -405,13 +559,22 @@
 
                     if (upload.error) {
 
-                        alert(upload.error.message);
+                        console.error(
+                            "Upload error:",
+                            upload.error
+                        );
+
+                        alert(
+                            "Could not upload the profile picture: " +
+                            upload.error.message
+                        );
+
                         return;
 
                     }
 
 
-                    avatarUrl =
+                    const publicUrl =
                         window.supabaseClient
                             .storage
                             .from("avatars")
@@ -420,7 +583,48 @@
                             .publicUrl;
 
 
+                    avatarUrl =
+                        publicUrl +
+                        "?t=" +
+                        Date.now();
+
+
+                    const {
+                        error: updateError
+                    } = await window.supabaseClient
+                        .from("profiles")
+                        .update({
+                            avatar_url:
+                                avatarUrl
+                        })
+                        .eq(
+                            "id",
+                            userId
+                        );
+
+
+                    if (updateError) {
+
+                        console.error(
+                            "Avatar profile update error:",
+                            updateError
+                        );
+
+                        alert(
+                            "The picture was uploaded, but the profile could not be updated: " +
+                            updateError.message
+                        );
+
+                        return;
+
+                    }
+
+
                     setAvatar();
+
+                    alert(
+                        "Profile picture updated successfully!"
+                    );
 
                 }
             );
@@ -432,7 +636,35 @@
                 document.getElementById("save");
 
 
+            const fullName =
+                document
+                    .getElementById("full-name")
+                    .value
+                    .trim();
+
+
+            const phone =
+                document
+                    .getElementById("phone")
+                    .value
+                    .trim();
+
+
+            if (!fullName) {
+
+                alert(
+                    "Please enter your full name."
+                );
+
+                return;
+
+            }
+
+
             button.disabled = true;
+
+            button.textContent =
+                "Saving...";
 
 
             const {
@@ -441,16 +673,10 @@
                 .from("profiles")
                 .update({
                     full_name:
-                        document
-                            .getElementById("full-name")
-                            .value
-                            .trim(),
+                        fullName,
 
                     phone:
-                        document
-                            .getElementById("phone")
-                            .value
-                            .trim(),
+                        phone,
 
                     avatar_url:
                         avatarUrl,
@@ -458,32 +684,46 @@
                     updated_at:
                         new Date().toISOString()
                 })
-                .eq("id", userId);
+                .eq(
+                    "id",
+                    userId
+                );
 
 
             button.disabled = false;
 
+            button.textContent =
+                "Save changes";
+
 
             if (error) {
 
-                alert(error.message);
+                console.error(
+                    "Save profile error:",
+                    error
+                );
+
+                alert(
+                    "Could not save your profile: " +
+                    error.message
+                );
+
                 return;
 
             }
 
 
-            document.getElementById("top-name").textContent =
-                document
-                    .getElementById("full-name")
-                    .value ||
-                document
-                    .getElementById("email")
-                    .value;
+            document.getElementById(
+                "top-name"
+            ).textContent = fullName;
 
 
             setAvatar();
 
-            alert("Profile updated successfully!");
+
+            alert(
+                "Profile updated successfully!"
+            );
 
         }
 
@@ -492,9 +732,12 @@
 
             event.preventDefault();
 
-            await window.supabaseClient.auth.signOut();
+            await window.supabaseClient
+                .auth
+                .signOut();
 
-            location.href = "../index.html";
+            window.location.href =
+                "../index.html";
 
         }
 
