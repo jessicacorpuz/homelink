@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="../static/css/styles.css">
 </head>
 
-<body>
+<body data-role="tenant">
 
 <div class="app">
 
@@ -97,7 +97,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../static/supabase.js"></script>
+<script src="../static/supabase.js"></script><script src="../static/notifications.js"></script>
 
 <script>
 
@@ -125,6 +125,7 @@ async function initializePage() {
 
     await loadProfile();
     await loadProperties();
+    await window.initHomeLinkNotifications();
 }
 
 async function loadProfile() {

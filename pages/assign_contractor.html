@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../static/css/styles.css">
 </head>
-<body>
+<body data-role="manager">
 
 <div class="app">
   <aside class="sidebar">
@@ -16,14 +16,7 @@
         <div class="brand-icon"><i class="fa-solid fa-house"></i></div>
         <span class="brand-name">HomeLink</span>
       </div>
-      <nav class="nav">
-        <a href="manager_dashboard.html" class="active"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a>
-        <a href="#"><i class="fa-solid fa-building"></i> Properties</a>
-        <a href="#"><i class="fa-solid fa-screwdriver-wrench"></i> Maintenance Requests</a>
-        <a href="#"><i class="fa-solid fa-users"></i> Contractors</a>
-        <a href="#"><i class="fa-solid fa-chart-bar"></i> Reports</a>
-        <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
-      </nav>
+      <nav class="nav"><a href="manager_dashboard.html"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a><a href="manager_properties.html"><i class="fa-solid fa-building"></i> Properties</a><a href="manager_requests.html"><i class="fa-solid fa-screwdriver-wrench"></i> Maintenance Requests</a><a href="manager_contractors.html"><i class="fa-solid fa-users"></i> Contractors</a><a href="manager_profile.html"><i class="fa-solid fa-user"></i> Profile</a></nav>
     </div>
     <div class="logout-wrap">
       <a href="../index.html"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a>
@@ -115,6 +108,7 @@
   </div>
 </div>
 
-<script src="../static/js/app.js"></script>
+<script src="../static/js/app.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../static/supabase.js"></script><script src="../static/notifications.js">window.initHomeLinkNotifications();
+</script>
 </body>
 </html>

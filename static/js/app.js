@@ -1,5 +1,5 @@
-// Generic tab switcher: works for any .tabs / .detail-tabs block
-// Usage: <button onclick="setTab(this, 'panel-id')">
+
+
 function setTab(btn, panelId) {
   var tabsWrap = btn.parentElement;
   var buttons = tabsWrap.querySelectorAll(".tab, .detail-tab");
@@ -12,7 +12,6 @@ function setTab(btn, panelId) {
   });
 }
 
-// Status filter for My Requests list
 function filterStatus(btn, status) {
   var tabsWrap = btn.parentElement;
   tabsWrap.querySelectorAll(".tab").forEach(function (b) { b.classList.remove("active"); });
@@ -24,7 +23,6 @@ function filterStatus(btn, status) {
   });
 }
 
-// Report request stepper
 var currentStep = 1;
 function goToStep(step) {
   currentStep = step;
@@ -67,14 +65,13 @@ function stepBack() {
 }
 function stepNext() {
   if (currentStep === 3) {
-    // Hook this up to your backend, e.g. document.getElementById("request-form").submit();
+
     window.location.href = "my_requests.html";
   } else {
     goToStep(currentStep + 1);
   }
 }
 
-// Login role selection
 function selectRole(el, role) {
   var wrap = el.parentElement;
   wrap.querySelectorAll(".role-tab").forEach(function (t) { t.classList.remove("active"); });

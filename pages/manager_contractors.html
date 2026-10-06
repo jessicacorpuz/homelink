@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HomeLink - Contractors</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../static/css/styles.css">
+</head>
+<body data-role="manager">
+<div class="app">
+<aside class="sidebar"><div><div class="brand"><div class="brand-icon"><i class="fa-solid fa-house"></i></div><span class="brand-name">HomeLink</span></div><nav class="nav"><a href="manager_dashboard.html"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a><a href="manager_properties.html"><i class="fa-solid fa-building"></i> Properties</a><a href="manager_requests.html"><i class="fa-solid fa-screwdriver-wrench"></i> Maintenance Requests</a><a href="manager_contractors.html" class="active"><i class="fa-solid fa-users"></i> Contractors</a><a href="manager_profile.html"><i class="fa-solid fa-user"></i> Profile</a></nav></div><div class="logout-wrap"><a href="../index.html" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a></div></aside>
+<main class="main"><div class="topbar"><div class="bell"><i class="fa-regular fa-bell"></i></div><div class="user"><div class="avatar" id="top-avatar"></div><div class="user-info"><p class="user-name" id="top-name">Loading...</p><p class="user-role">Property Manager</p></div></div></div>
+<section class="content"><div class="page-head"><div><h1 class="page-title">Contractors</h1><p class="page-sub">Users registered with the Contractor role.</p></div></div><div id="contractorList" class="contractor-grid"><div class="loading-card"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading contractors...</p></div></div></section></main></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../static/supabase.js"></script><script src="../static/notifications.js"></script><script>
+let contractors=[];let requests=[];
+const esc=v=>String(v??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]));
+const initials=name=>(name||"Contractor").trim().split(/\s+/).slice(0,2).map(x=>x[0]).join("").toUpperCase()||"C";
+async function init(){const {data,error}=await window.supabaseClient.auth.getUser();if(error||!data.user){location.href="../index.html";return}const p=await window.supabaseClient.from("profiles").select("full_name,email,role,avatar_url").eq("id",data.user.id).single();if(p.error||String(p.data?.role||"").toLowerCase()!=="manager"){location.href="../index.html";return}document.getElementById("top-name").textContent=p.data.full_name||p.data.email||data.user.email||"Property Manager";document.getElementById("top-avatar").innerHTML=p.data.avatar_url?`<img src="${esc(p.data.avatar_url)}" alt="">`:esc(initials(p.data.full_name||p.data.email));await load();await window.initHomeLinkNotifications()}
+async function load(){const [c,r]=await Promise.all([window.supabaseClient.from("profiles").select("id,full_name,email,avatar_url").eq("role","contractor").order("full_name"),window.supabaseClient.from("maintenance_requests").select("assigned_contractor_id,status")]);if(c.error){document.getElementById("contractorList").innerHTML=`<div class="empty-card"><h2>Unable to load contractors</h2><p>${esc(c.error.message)}</p></div>`;return}contractors=c.data||[];requests=r.data||[];render()}
+function render(){const list=document.getElementById("contractorList");if(!contractors.length){list.innerHTML='<div class="empty-card"><div class="empty-icon"><i class="fa-solid fa-users"></i></div><h2>No Contractors</h2><p>No users have registered with the Contractor role yet.</p></div>';return}list.innerHTML=contractors.map(c=>{const assigned=requests.filter(r=>r.assigned_contractor_id===c.id);const active=assigned.filter(r=>r.status!=="Completed").length;const completed=assigned.filter(r=>r.status==="Completed").length;const name=c.full_name||c.email||"Contractor";return `<article class="contractor-card"><div class="contractor-card-header"><div class="contractor-card-avatar">${c.avatar_url?`<img src="${esc(c.avatar_url)}" alt="">`:esc(initials(name))}</div><div><h3>${esc(name)}</h3><p>${esc(c.email||"")}</p></div></div><div class="contractor-card-stats"><span><strong>${active}</strong>Active jobs</span><span><strong>${completed}</strong>Completed</span></div></article>`}).join("")}
+document.getElementById("logoutBtn").onclick=async e=>{e.preventDefault();await window.supabaseClient.auth.signOut();location.href="../index.html"};init();
+</script>
+</body>
+</html>

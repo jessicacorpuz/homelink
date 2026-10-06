@@ -2,87 +2,26 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>HomeLink - Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HomeLink - Tenant Dashboard</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../static/css/styles.css">
 </head>
-<body>
-
+<body data-role="tenant">
 <div class="app">
-  <aside class="sidebar">
-    <div>
-      <div class="brand">
-        <div class="brand-icon"><i class="fa-solid fa-house"></i></div>
-        <span class="brand-name">HomeLink</span>
-      </div>
-      <nav class="nav">
-        <a href="tenant_dashboard.html" class="active"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a>
-        <a href="my_properties.html"><i class="fa-solid fa-building"></i> My Properties</a>
-        <a href="my_requests.html"><i class="fa-solid fa-screwdriver-wrench"></i> Maintenance Requests</a>
-        <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
-      </nav>
-    </div>
-    <div class="logout-wrap">
-      <a href="../index.html"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a>
-    </div>
-  </aside>
-
-  <div class="main">
-    <div class="topbar">
-      <div class="bell"><i class="fa-regular fa-bell"></i><span class="dot"></span></div>
-      <div class="user">
-        <div class="avatar"></div>
-        <div class="user-info">
-          <p class="user-name"></p>
-          <p class="user-role">Tenant</p>
-        </div>
-        <i class="fa-solid fa-chevron-down"></i>
-      </div>
-    </div>
-
-    <div class="content">
-      <h1 class="page-title">Good morning!</h1>
-      <p class="page-sub">Here's what's happening with your properties.</p>
-
-      <div class="stats">
-        <div class="stat-card">
-          <div class="stat-icon bg-blue"><i class="fa-solid fa-building"></i></div>
-          <div><p class="stat-value">0</p><p class="stat-label">Properties</p></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon bg-rose"><i class="fa-solid fa-screwdriver-wrench"></i></div>
-          <div><p class="stat-value">0</p><p class="stat-label">Open Requests</p></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon bg-amber"><i class="fa-solid fa-clock"></i></div>
-          <div><p class="stat-value">0</p><p class="stat-label">In Progress</p></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon bg-emerald"><i class="fa-solid fa-check"></i></div>
-          <div><p class="stat-value">0</p><p class="stat-label">Completed</p></div>
-        </div>
-      </div>
-
-      <div class="section-header">
-        <h2>My Properties</h2>
-        <button class="link-btn">View All</button>
-      </div>
-      <div class="properties-grid">
-        <p class="empty-state">No properties yet.</p>
-      </div>
-
-      <div class="section-header">
-        <h2>Recent Maintenance Requests</h2>
-        <a href="my_requests.html" class="link-btn">View All</a>
-      </div>
-      <div class="request-list">
-        <p class="empty-state">No maintenance requests yet.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="../static/js/app.js"></script>
+<aside class="sidebar"><div><div class="brand"><div class="brand-icon"><i class="fa-solid fa-house"></i></div><span class="brand-name">HomeLink</span></div><nav class="nav"><a href="tenant_dashboard.html" class="active"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a><a href="my_properties.html"><i class="fa-solid fa-building"></i> My Properties</a><a href="my_requests.html"><i class="fa-solid fa-screwdriver-wrench"></i> Maintenance Requests</a><a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a></nav></div><div class="logout-wrap"><a href="../index.html" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a></div></aside>
+<main class="main"><div class="topbar"><div class="bell"><i class="fa-regular fa-bell"></i></div><div class="user"><div class="avatar" id="top-avatar"></div><div class="user-info"><p class="user-name" id="top-name">Loading...</p><p class="user-role">Tenant</p></div></div></div>
+<section class="content"><h1 class="page-title" id="greeting">Good afternoon!</h1><p class="page-sub">Here's what's happening with your properties.</p><div class="stats"><div class="stat-card"><div class="stat-icon bg-blue"><i class="fa-solid fa-building"></i></div><div><p class="stat-value" id="propertyCount">0</p><p class="stat-label">Properties</p></div></div><div class="stat-card"><div class="stat-icon bg-rose"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><p class="stat-value" id="openCount">0</p><p class="stat-label">Open Requests</p></div></div><div class="stat-card"><div class="stat-icon bg-amber"><i class="fa-solid fa-clock"></i></div><div><p class="stat-value" id="progressCount">0</p><p class="stat-label">In Progress</p></div></div><div class="stat-card"><div class="stat-icon bg-emerald"><i class="fa-solid fa-check"></i></div><div><p class="stat-value" id="completedCount">0</p><p class="stat-label">Completed</p></div></div></div><div class="section-header"><h2>My Properties</h2><a href="my_properties.html" class="link-btn">View All</a></div><div id="propertyList" class="properties-grid"><div class="loading-card"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading properties...</p></div></div><div class="section-header"><h2>Recent Maintenance Requests</h2><a href="my_requests.html" class="link-btn">View All</a></div><div id="requestList" class="request-list"><div class="loading-card"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading requests...</p></div></div></section></main></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../static/supabase.js"></script><script src="../static/notifications.js"></script><script>
+let currentUser=null;let properties=[];let requests=[];
+const esc=v=>String(v??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]));
+const initials=name=>(name||"Tenant").trim().split(/\s+/).slice(0,2).map(x=>x[0]).join("").toUpperCase()||"T";
+function greeting(){const h=new Date().getHours();return h<12?"Good morning!":h<18?"Good afternoon!":"Good evening!"}
+async function init(){const {data,error}=await window.supabaseClient.auth.getUser();if(error||!data.user){location.href="../index.html";return}currentUser=data.user;const p=await window.supabaseClient.from("profiles").select("full_name,email,role,avatar_url").eq("id",currentUser.id).single();if(p.error||String(p.data?.role||"").toLowerCase()!=="tenant"){location.href="../index.html";return}const name=p.data.full_name||p.data.email||currentUser.email||"Tenant";document.getElementById("top-name").textContent=name;document.getElementById("top-avatar").innerHTML=p.data.avatar_url?`<img src="${esc(p.data.avatar_url)}" alt="">`:esc(initials(name));document.getElementById("greeting").textContent=greeting();await loadData();await window.initHomeLinkNotifications()}
+async function loadData(){const [p,r]=await Promise.all([window.supabaseClient.from("properties").select("id,property_name,unit,address,property_type,status").eq("tenant_id",currentUser.id).order("property_name"),window.supabaseClient.from("maintenance_requests").select("id,title,property_name,unit,issue_type,status,priority,created_at").eq("tenant_id",currentUser.id).order("created_at",{ascending:false})]);if(p.error||r.error){document.getElementById("propertyList").innerHTML=`<p class="empty-state">Could not load your dashboard data.</p>`;return}properties=p.data||[];requests=r.data||[];document.getElementById("propertyCount").textContent=properties.length;document.getElementById("openCount").textContent=requests.filter(x=>x.status==="Open").length;document.getElementById("progressCount").textContent=requests.filter(x=>x.status==="In Progress").length;document.getElementById("completedCount").textContent=requests.filter(x=>x.status==="Completed").length;renderProperties();renderRequests()}
+function renderProperties(){const el=document.getElementById("propertyList");if(!properties.length){el.innerHTML='<p class="empty-state">No properties have been assigned to you yet.</p>';return}el.innerHTML=properties.slice(0,3).map(p=>`<article class="property-card"><div class="property-header"><div class="property-icon"><i class="fa-solid fa-building"></i></div><span class="property-status status-active">${esc(p.status||"Active")}</span></div><div class="property-body"><h2>${esc(p.property_name)}</h2><p class="property-type">${esc(p.property_type||"Property")}</p><div class="property-details"><div class="detail-row"><i class="fa-solid fa-location-dot"></i><div><span>Address</span><strong>${esc(p.address||"Not provided")}</strong></div></div><div class="detail-row"><i class="fa-solid fa-door-open"></i><div><span>Unit</span><strong>${esc(p.unit||"Not specified")}</strong></div></div></div></div></article>`).join("")}
+function renderRequests(){const el=document.getElementById("requestList");if(!requests.length){el.innerHTML='<p class="empty-state">No maintenance requests yet.</p>';return}el.innerHTML=requests.slice(0,5).map(r=>`<div class="request-row"><div class="request-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div><div class="request-main"><p class="request-title">${esc(r.title)}</p><p class="request-meta">${esc(r.property_name)} · ${esc(r.unit)} · ${esc(r.priority||"Normal")}</p></div><span class="badge ${r.status==="Completed"?"badge-completed":r.status==="In Progress"?"badge-inprogress":r.status==="Assigned"?"badge-assigned":"badge-open"}">${esc(r.status||"Open")}</span><div class="request-date">${new Date(r.created_at).toLocaleDateString()}</div></div>`).join("")}
+document.getElementById("logoutBtn").onclick=async e=>{e.preventDefault();await window.supabaseClient.auth.signOut();location.href="../index.html"};init();
+</script>
 </body>
 </html>

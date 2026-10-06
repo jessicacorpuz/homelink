@@ -3,22 +3,20 @@ import json
 import os
 import urllib.request
 import urllib.error
+import urllib.parse
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
 SUPABASE_ANON_KEY = os.environ.get("SUPABASE_ANON_KEY", "")
 
 class handler(BaseHTTPRequestHandler):
-
     def _json(self, status, body):
         data = json.dumps(body).encode()
-
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Headers", "authorization, content-type")
         self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
         self.end_headers()
-
         self.wfile.write(data)
 
     def do_OPTIONS(self):
@@ -26,96 +24,65 @@ class handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         if not SUPABASE_URL:
-            return self._json(500, {
-                "error": "SUPABASE_URL is not configured on Vercel."
-            })
-
+            return self._json(500, {"error": "SUPABASE_URL is not configured on Vercel."})
         if not SUPABASE_ANON_KEY:
-            return self._json(500, {
-                "error": "SUPABASE_ANON_KEY is not configured on Vercel."
-            })
+            return self._json(500, {"error": "SUPABASE_ANON_KEY is not configured on Vercel."})
 
         auth = self.headers.get("Authorization", "")
-
         if not auth.startswith("Bearer "):
-            return self._json(401, {
-                "error": "Authentication required. Please log in again."
-            })
+            return self._json(401, {"error": "Authentication required. Please log in again."})
 
         try:
             user_request = urllib.request.Request(
                 SUPABASE_URL + "/auth/v1/user",
                 method="GET",
-                headers={
-                    "Authorization": auth,
-                    "apikey": SUPABASE_ANON_KEY
-                }
+                headers={"Authorization": auth, "apikey": SUPABASE_ANON_KEY}
             )
-
             with urllib.request.urlopen(user_request, timeout=15) as user_response:
-                user = json.loads(
-                    user_response.read().decode() or "{}"
-                )
+                user = json.loads(user_response.read().decode() or "{}")
 
             user_id = user.get("id")
-
             if not user_id:
-                return self._json(401, {
-                    "error": "Could not identify the signed-in user."
-                })
+                return self._json(401, {"error": "Could not identify the signed-in user."})
 
-            content_length = int(
-                self.headers.get("Content-Length", "0")
-            )
-
+            content_length = int(self.headers.get("Content-Length", "0"))
             raw_body = self.rfile.read(content_length)
             payload = json.loads(raw_body or b"{}")
+            property_id = str(payload.get("property_id", "")).strip()
 
-            required_fields = [
-                "property_name",
-                "unit",
-                "issue_type",
-                "title",
-                "description"
-            ]
+            if not property_id:
+                return self._json(400, {"error": "Please select a property."})
 
+            property_request = urllib.request.Request(
+                SUPABASE_URL + "/rest/v1/properties?id=eq." + urllib.parse.quote(property_id, safe="") + "&tenant_id=eq." + urllib.parse.quote(user_id, safe="") + "&select=id,property_name,unit",
+                method="GET",
+                headers={"Authorization": auth, "apikey": SUPABASE_ANON_KEY}
+            )
+            with urllib.request.urlopen(property_request, timeout=15) as property_response:
+                properties = json.loads(property_response.read().decode() or "[]")
+
+            if not properties:
+                return self._json(403, {"error": "That property is not assigned to your account."})
+
+            property_data = properties[0]
+            required_fields = ["issue_type", "title", "description"]
             for field in required_fields:
-                value = str(
-                    payload.get(field, "")
-                ).strip()
-
-                if not value:
-                    return self._json(400, {
-                        "error": f"{field} is required."
-                    })
+                if not str(payload.get(field, "")).strip():
+                    return self._json(400, {"error": f"{field} is required."})
 
             maintenance_data = {
                 "tenant_id": user_id,
-                "property_name": str(
-                    payload["property_name"]
-                ).strip(),
-                "unit": str(
-                    payload["unit"]
-                ).strip(),
-                "issue_type": str(
-                    payload["issue_type"]
-                ).strip(),
-                "title": str(
-                    payload["title"]
-                ).strip(),
-                "description": str(
-                    payload["description"]
-                ).strip(),
-                "priority": str(
-                    payload.get("priority", "Normal")
-                ).strip(),
+                "property_id": property_data["id"],
+                "property_name": property_data["property_name"],
+                "unit": property_data.get("unit") or "",
+                "issue_type": str(payload["issue_type"]).strip(),
+                "title": str(payload["title"]).strip(),
+                "description": str(payload["description"]).strip(),
+                "priority": str(payload.get("priority", "Normal")).strip(),
                 "status": "Open"
             }
 
-            request_body = json.dumps(
-                maintenance_data
-            ).encode()
-
+            request_body = json.dumps(maintenance_data).encode()
             supabase_request = urllib.request.Request(
                 SUPABASE_URL + "/rest/v1/maintenance_requests",
                 data=request_body,
@@ -127,28 +94,12 @@ class handler(BaseHTTPRequestHandler):
                     "Prefer": "return=representation"
                 }
             )
+            with urllib.request.urlopen(supabase_request, timeout=15) as response:
+                created = json.loads(response.read().decode() or "[]")
 
-            with urllib.request.urlopen(
-                supabase_request,
-                timeout=15
-            ) as response:
-                created = json.loads(
-                    response.read().decode() or "[]"
-                )
-
-            return self._json(201, {
-                "success": True,
-                "request": created[0] if created else None
-            })
+            return self._json(201, {"success": True, "request": created[0] if created else None})
 
         except urllib.error.HTTPError as error:
-            detail = error.read().decode(errors="replace")
-
-            return self._json(error.code, {
-                "error": detail
-            })
-
+            return self._json(error.code, {"error": error.read().decode(errors="replace")})
         except Exception as error:
-            return self._json(500, {
-                "error": str(error)
-            })
+            return self._json(500, {"error": str(error)})

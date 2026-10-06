@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../static/css/styles.css">
 </head>
-<body>
+<body data-role="tenant">
 
 <div class="app">
   <aside class="sidebar">
@@ -67,11 +67,11 @@
         <div class="tab-panel step-panel active" data-step="1">
           <div class="form-group">
             <label for="property">Property</label>
-            <input type="text" id="property" name="property" placeholder="e.g. Sunrise Apartments">
+            <select id="property" name="property_id"><option value="">Loading your properties...</option></select>
           </div>
           <div class="form-group">
             <label for="unit">Unit</label>
-            <input type="text" id="unit" name="unit" placeholder="e.g. Unit 204">
+            <input type="text" id="unit" name="unit" readonly>
           </div>
           <div class="form-group">
             <label for="issue-type">Issue Type</label>
@@ -132,20 +132,49 @@
 
 <script src="../static/js/app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../static/supabase.js"></script>
+<script src="../static/supabase.js"></script><script src="../static/notifications.js"></script>
 <script>
 let selectedFiles = [];
+let assignedProperties = [];
 const MAX_FILE_SIZE = 30 * 1024 * 1024;
 
 document.addEventListener("DOMContentLoaded", async () => {
   const { data } = await window.supabaseClient.auth.getSession();
   if (!data.session) { window.location.href = "../index.html"; return; }
+  await window.initHomeLinkNotifications();
   document.getElementById("file-input").addEventListener("change", e => addFiles(e.target.files));
+  await loadAssignedProperties();
   const dz = document.getElementById("dropzone");
   ["dragenter","dragover"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add("active"); }));
   ["dragleave","drop"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove("active"); }));
   dz.addEventListener("drop", e => addFiles(e.dataTransfer.files));
 });
+
+async function loadAssignedProperties() {
+  const { data: sessionData } = await window.supabaseClient.auth.getSession();
+  const session = sessionData.session;
+  if (!session) return;
+  const { data, error } = await window.supabaseClient.from("properties").select("id,property_name,unit,address,property_type").eq("tenant_id", session.user.id).eq("status", "Active").order("property_name");
+  const select = document.getElementById("property");
+  if (error) { select.innerHTML = '<option value="">Could not load properties</option>'; return; }
+  assignedProperties = data || [];
+  if (!assignedProperties.length) {
+    select.innerHTML = '<option value="">No properties assigned</option>';
+    document.getElementById("unit").value = "";
+    return;
+  }
+  select.innerHTML = '<option value="">Select a property</option>' + assignedProperties.map(p => `<option value="${p.id}">${escapeHtml(p.property_name)}${p.unit ? " - " + escapeHtml(p.unit) : ""}</option>`).join("");
+  select.addEventListener("change", updateSelectedProperty);
+}
+
+function updateSelectedProperty() {
+  const property = assignedProperties.find(p => p.id === document.getElementById("property").value);
+  document.getElementById("unit").value = property?.unit || "";
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]));
+}
 
 function addFiles(files) {
   for (const file of files) {
@@ -165,14 +194,15 @@ async function submitRequest() {
   const session = sessionData.session;
   if (!session) { alert("Please sign in again."); return; }
   const payload = {
-    property_name: document.getElementById("property").value.trim(),
+    property_id: document.getElementById("property").value,
+    property_name: assignedProperties.find(p => p.id === document.getElementById("property").value)?.property_name || "",
     unit: document.getElementById("unit").value.trim(),
     issue_type: document.getElementById("issue-type").value,
     priority: document.getElementById("priority").value,
     title: document.getElementById("title").value.trim(),
     description: document.getElementById("description").value.trim()
   };
-  if (!payload.property_name || !payload.unit || !payload.issue_type || !payload.title || !payload.description) { alert("Please complete all issue details."); goToStep(1); return; }
+  if (!payload.property_id || !payload.property_name || !payload.issue_type || !payload.title || !payload.description) { alert("Please complete all issue details."); goToStep(1); return; }
   const button = document.getElementById("step-next"); button.disabled = true; button.textContent = "Submitting...";
   try {
     const res = await fetch("../api/maintenance", { method:"POST", headers:{"Content-Type":"application/json", "Authorization":"Bearer " + session.access_token}, body:JSON.stringify(payload) });
@@ -197,10 +227,14 @@ window.stepNext = function() {
   if (currentStep === 3) { submitRequest(); } else { goToStep(currentStep + 1); }
 };
 
-const originalPopulate = window.populateReview;
 window.populateReview = function() {
-  originalPopulate();
-  const p = document.getElementById("review-priority"); if (p) p.textContent = document.getElementById("priority").value;
+  const property = assignedProperties.find(p => p.id === document.getElementById("property").value);
+  document.getElementById("review-property").textContent = property ? property.property_name : "—";
+  document.getElementById("review-unit").textContent = property?.unit || "—";
+  document.getElementById("review-issue-type").textContent = document.getElementById("issue-type").value || "—";
+  document.getElementById("review-title").textContent = document.getElementById("title").value || "—";
+  document.getElementById("review-description").textContent = document.getElementById("description").value || "—";
+  document.getElementById("review-priority").textContent = document.getElementById("priority").value || "—";
 };
 </script>
 </body>

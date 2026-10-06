@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HomeLink - Properties</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../static/css/styles.css">
+</head>
+<body data-role="manager">
+<div class="app">
+<aside class="sidebar">
+<div>
+<div class="brand"><div class="brand-icon"><i class="fa-solid fa-house"></i></div><span class="brand-name">HomeLink</span></div>
+<nav class="nav">
+<a href="manager_dashboard.html"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a>
+<a href="manager_properties.html" class="active"><i class="fa-solid fa-building"></i> Properties</a>
+<a href="manager_requests.html"><i class="fa-solid fa-screwdriver-wrench"></i> Maintenance Requests</a>
+<a href="manager_contractors.html"><i class="fa-solid fa-users"></i> Contractors</a><a href="manager_profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+</nav>
+</div>
+<div class="logout-wrap"><a href="../index.html" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a></div>
+</aside>
+<main class="main">
+<div class="topbar"><div class="bell"><i class="fa-regular fa-bell"></i></div><div class="user"><div class="avatar" id="top-avatar"></div><div class="user-info"><p class="user-name" id="top-name">Loading...</p><p class="user-role" id="top-role">Property Manager</p></div></div></div>
+<section class="content">
+<div class="page-head"><div><h1 class="page-title">Properties</h1><p class="page-sub">Add properties and assign them to tenants.</p></div><button class="btn-primary" id="showAdd"><i class="fa-solid fa-plus"></i> Add Property</button></div>
+<div id="addPanel" class="panel manager-form-panel hidden-panel">
+<h2 class="panel-title">Add New Property</h2>
+<div class="form-row-grid">
+<div class="form-group"><label for="property-name">Property Name</label><input id="property-name" type="text" placeholder="Sunrise Apartments"></div>
+<div class="form-group"><label for="unit">Unit</label><input id="unit" type="text" placeholder="Unit 204"></div>
+</div>
+<div class="form-row-grid">
+<div class="form-group"><label for="address">Address</label><input id="address" type="text" placeholder="123 Main Street"></div>
+<div class="form-group"><label for="property-type">Property Type</label><select id="property-type"><option value="Apartment">Apartment</option><option value="House">House</option><option value="Condominium">Condominium</option><option value="Townhouse">Townhouse</option><option value="Commercial">Commercial</option></select></div>
+</div>
+<div class="form-row-grid">
+<div class="form-group"><label for="lease-start">Lease Start</label><input id="lease-start" type="date"></div>
+<div class="form-group"><label for="lease-end">Lease End</label><input id="lease-end" type="date"></div>
+</div>
+<div class="form-group"><label for="tenant">Assign Tenant</label><select id="tenant"><option value="">Unassigned</option></select></div>
+<div class="panel-actions"><button class="btn-secondary" id="cancelAdd">Cancel</button><button class="btn-primary" id="saveProperty">Save Property</button></div>
+</div>
+<div id="propertyList" class="property-grid"><div class="loading-card"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading properties...</p></div></div>
+</section>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../static/supabase.js"></script><script src="../static/notifications.js"></script>
+<script>
+let currentUser=null;
+let tenants=[];
+const esc=value=>String(value??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]));
+async function init(){
+const {data,error}=await window.supabaseClient.auth.getUser();
+if(error||!data.user){location.href="../index.html";return}
+currentUser=data.user;
+const profile=await window.supabaseClient.from("profiles").select("full_name,email,role,avatar_url").eq("id",currentUser.id).single();
+if(profile.error||String(profile.data?.role||"").toLowerCase()!=="manager"){location.href="../index.html";return}
+document.getElementById("top-name").textContent=profile.data.full_name||profile.data.email||currentUser.email||"Property Manager";
+setTopAvatar(profile.data.avatar_url,profile.data.full_name||profile.data.email);
+await loadTenants();
+await loadProperties();
+await window.initHomeLinkNotifications();
+}
+function setTopAvatar(url,name){const el=document.getElementById("top-avatar");if(url){el.innerHTML=`<img src="${esc(url)}" alt="">`}else{el.textContent=(name||"PM").split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase()}}
+async function loadTenants(){
+const r=await window.supabaseClient.from("profiles").select("id,full_name,email").eq("role","tenant").order("full_name");
+if(r.error){alert(r.error.message);return}
+tenants=r.data||[];
+const select=document.getElementById("tenant");
+select.innerHTML='<option value="">Unassigned</option>'+tenants.map(t=>`<option value="${t.id}">${esc(t.full_name||t.email||"Tenant")}</option>`).join("");
+}
+async function loadProperties(){
+const list=document.getElementById("propertyList");
+const r=await window.supabaseClient.from("properties").select("*").order("created_at",{ascending:false});
+if(r.error){list.innerHTML=`<div class="empty-card"><div class="empty-icon"><i class="fa-solid fa-triangle-exclamation"></i></div><h2>Unable to Load Properties</h2><p>${esc(r.error.message)}</p></div>`;return}
+if(!r.data?.length){list.innerHTML='<div class="empty-card"><div class="empty-icon"><i class="fa-solid fa-building"></i></div><h2>No Properties Yet</h2><p>Add your first property to make it available to tenants.</p></div>';return}
+list.innerHTML=r.data.map(p=>{const tenant=tenants.find(t=>t.id===p.tenant_id);const status=p.status||"Active";return `<article class="property-card"><div class="property-header"><div class="property-icon"><i class="fa-solid fa-building"></i></div><span class="property-status ${status.toLowerCase()==="active"?"status-active":"status-inactive"}">${esc(status)}</span></div><div class="property-body"><h2>${esc(p.property_name)}</h2><p class="property-type">${esc(p.property_type||"Property")}</p><div class="property-details"><div class="detail-row"><i class="fa-solid fa-location-dot"></i><div><span>Address</span><strong>${esc(p.address||"Not provided")}</strong></div></div><div class="detail-row"><i class="fa-solid fa-door-open"></i><div><span>Unit</span><strong>${esc(p.unit||"Not specified")}</strong></div></div><div class="detail-row"><i class="fa-solid fa-user"></i><div><span>Tenant</span><strong>${esc(tenant?.full_name||tenant?.email||"Unassigned")}</strong></div></div></div></div><div class="property-footer"><select class="property-tenant-select" onchange="assignTenant('${p.id}', this.value)"><option value="">Unassigned</option>${tenants.map(t=>`<option value="${t.id}" ${t.id===p.tenant_id?"selected":""}>${esc(t.full_name||t.email||"Tenant")}</option>`).join("")}</select></div></article>`}).join("");
+}
+async function assignTenant(propertyId, tenantId){
+const r=await window.supabaseClient.from("properties").update({tenant_id:tenantId||null}).eq("id",propertyId);
+if(r.error){alert(r.error.message);await loadProperties();return}
+await loadProperties();
+}
+
+document.getElementById("showAdd").onclick=()=>document.getElementById("addPanel").classList.remove("hidden-panel");
+document.getElementById("cancelAdd").onclick=()=>document.getElementById("addPanel").classList.add("hidden-panel");
+document.getElementById("saveProperty").onclick=async()=>{
+const button=document.getElementById("saveProperty");const propertyName=document.getElementById("property-name").value.trim();const unit=document.getElementById("unit").value.trim();const address=document.getElementById("address").value.trim();if(!propertyName||!unit||!address){alert("Please complete the property name, unit, and address.");return}
+button.disabled=true;button.textContent="Saving...";
+const r=await window.supabaseClient.from("properties").insert({property_name:propertyName,unit,address,property_type:document.getElementById("property-type").value,lease_start:document.getElementById("lease-start").value||null,lease_end:document.getElementById("lease-end").value||null,tenant_id:document.getElementById("tenant").value||null,status:"Active"});
+button.disabled=false;button.textContent="Save Property";if(r.error){alert(r.error.message);return}
+document.getElementById("addPanel").classList.add("hidden-panel");document.querySelectorAll("#addPanel input").forEach(i=>i.value="");document.getElementById("tenant").value="";await loadProperties();
+};
+document.getElementById("logoutBtn").onclick=async e=>{e.preventDefault();await window.supabaseClient.auth.signOut();location.href="../index.html"};
+init();
+</script>
+</body>
+</html>

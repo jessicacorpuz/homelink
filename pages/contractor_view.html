@@ -2,60 +2,28 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>HomeLink - My Assigned Jobs</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HomeLink - Assigned Jobs</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="../static/css/styles.css">
 </head>
-<body>
-
+<body data-role="contractor">
 <div class="app">
-  <aside class="sidebar">
-    <div>
-      <div class="brand">
-        <div class="brand-icon"><i class="fa-solid fa-house"></i></div>
-        <span class="brand-name">HomeLink</span>
-      </div>
-      <nav class="nav">
-        <a href="contractor_view.html" class="active"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a>
-        <a href="contractor_view.html"><i class="fa-solid fa-screwdriver-wrench"></i> Assigned Jobs</a>
-        <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
-      </nav>
-    </div>
-    <div class="logout-wrap">
-      <a href="../index.html"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a>
-    </div>
-  </aside>
-
-  <div class="main">
-    <div class="topbar">
-      <div class="bell"><i class="fa-regular fa-bell"></i><span class="dot"></span></div>
-      <div class="user">
-        <div class="avatar"></div>
-        <div class="user-info">
-          <p class="user-name"></p>
-          <p class="user-role">Contractor</p>
-        </div>
-        <i class="fa-solid fa-chevron-down"></i>
-      </div>
-    </div>
-
-    <div class="content">
-      <h1 class="page-title">My Assigned Jobs</h1>
-      <p class="page-sub">View and manage your assigned maintenance requests.</p>
-
-      <div class="tabs">
-        <button class="tab active" onclick="filterStatus(this, 'Active')">Active (0)</button>
-        <button class="tab" onclick="filterStatus(this, 'Completed')">Completed (0)</button>
-      </div>
-
-      <div class="job-grid">
-        <p class="empty-state">No jobs assigned yet.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="../static/js/app.js"></script>
+<aside class="sidebar"><div><div class="brand"><div class="brand-icon"><i class="fa-solid fa-house"></i></div><span class="brand-name">HomeLink</span></div><nav class="nav"><a href="contractor_view.html" class="active"><i class="fa-solid fa-screwdriver-wrench"></i> Assigned Jobs</a><a href="contractor_profile.html"><i class="fa-solid fa-user"></i> Profile</a></nav></div><div class="logout-wrap"><a href="../index.html" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a></div></aside>
+<main class="main"><div class="topbar"><div class="bell"><i class="fa-regular fa-bell"></i></div><div class="user"><div class="avatar" id="top-avatar"></div><div class="user-info"><p class="user-name" id="top-name">Loading...</p><p class="user-role">Contractor</p></div></div></div>
+<section class="content"><h1 class="page-title">My Assigned Jobs</h1><p class="page-sub">View jobs assigned by the property manager and send repair updates.</p><div class="tabs" id="jobTabs"><button class="tab active" data-status="Active">Active</button><button class="tab" data-status="Completed">Completed</button></div><div id="jobList" class="job-grid"><div class="loading-card"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading jobs...</p></div></div></section></main></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../static/supabase.js"></script><script src="../static/notifications.js"></script><script>
+let currentUser=null;let jobs=[];let updates=[];
+const esc=v=>String(v??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]));
+const initials=name=>(name||"Contractor").trim().split(/\s+/).slice(0,2).map(x=>x[0]).join("").toUpperCase()||"C";
+async function init(){const {data,error}=await window.supabaseClient.auth.getUser();if(error||!data.user){location.href="../index.html";return}currentUser=data.user;const p=await window.supabaseClient.from("profiles").select("full_name,email,role,avatar_url").eq("id",currentUser.id).single();if(p.error||String(p.data?.role||"").toLowerCase()!=="contractor"){location.href="../index.html";return}const name=p.data.full_name||p.data.email||currentUser.email||"Contractor";document.getElementById("top-name").textContent=name;document.getElementById("top-avatar").innerHTML=p.data.avatar_url?`<img src="${esc(p.data.avatar_url)}" alt="">`:esc(initials(name));await loadJobs();await window.initHomeLinkNotifications()}
+async function loadJobs(){const r=await window.supabaseClient.from("maintenance_requests").select("*").eq("assigned_contractor_id",currentUser.id).order("created_at",{ascending:false});if(r.error){document.getElementById("jobList").innerHTML=`<div class="empty-card"><div class="empty-icon"><i class="fa-solid fa-triangle-exclamation"></i></div><h2>Unable to Load Jobs</h2><p>${esc(r.error.message)}</p></div>`;return}jobs=r.data||[];const ids=jobs.map(j=>j.id);if(ids.length){const u=await window.supabaseClient.from("repair_updates").select("id,request_id,update_text,status,created_at").in("request_id",ids).order("created_at",{ascending:false});updates=u.data||[]}else{updates=[]}renderJobs("Active")}
+function latestUpdate(id){return updates.find(u=>u.request_id===id)}
+function badgeClass(status){return {Open:"badge-open",Assigned:"badge-assigned","In Progress":"badge-inprogress",Completed:"badge-completed"}[status]||"badge-assigned"}
+function renderJobs(filter){const list=document.getElementById("jobList");const rows=filter==="Completed"?jobs.filter(j=>j.status==="Completed"):jobs.filter(j=>j.status!=="Completed");if(!rows.length){list.innerHTML='<div class="empty-card"><div class="empty-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div><h2>No Jobs</h2><p>No jobs are currently assigned to you in this category.</p></div>';return}list.innerHTML=rows.map(j=>{const u=latestUpdate(j.id);return `<article class="job-card"><div class="job-top"><div><p class="request-title">${esc(j.title)}</p><p class="request-meta">${esc(j.property_name)} · ${esc(j.unit)} · ${esc(j.issue_type)}</p></div><span class="badge ${badgeClass(j.status)}">${esc(j.status||"Assigned")}</span></div><p class="manager-request-description">${esc(j.description)}</p><div class="job-bottom"><span class="job-due">Priority: ${esc(j.priority||"Normal")}</span><span class="job-due">Submitted: ${new Date(j.created_at).toLocaleDateString()}</span></div>${u?`<div class="job-update"><p class="request-meta">Latest update · ${new Date(u.created_at).toLocaleString()}</p><p style="margin-top:6px;color:#334155;">${esc(u.update_text)}</p></div>`:""}${j.status!=="Completed"?`<form class="update-form" onsubmit="submitUpdate(event,'${j.id}')"><textarea name="update_text" placeholder="Describe the work completed or the progress made." required></textarea><div class="update-actions"><button class="btn-secondary" type="submit">Post Update</button><button class="btn-primary" type="button" onclick="completeJob('${j.id}')">Mark as Completed</button></div></form>`:`<div class="job-update"><p style="font-weight:600;color:#166534;">This job is completed.</p></div>`}</article>`}).join("")}
+async function submitUpdate(event,id){event.preventDefault();const form=event.currentTarget;const text=form.elements.update_text.value.trim();if(!text)return;const button=form.querySelector("button[type=submit]");button.disabled=true;button.textContent="Posting...";const r=await window.supabaseClient.from("repair_updates").insert({request_id:id,contractor_id:currentUser.id,update_text:text,status:"In Progress"});if(r.error){alert(r.error.message);button.disabled=false;button.textContent="Post Update";return}const status=await window.supabaseClient.from("maintenance_requests").update({status:"In Progress"}).eq("id",id).eq("assigned_contractor_id",currentUser.id);if(status.error){alert(status.error.message)}await loadJobs()}
+async function completeJob(id){if(!confirm("Mark this job as completed?"))return;const text=prompt("Add a final repair update for the tenant and manager:","");if(!text||!text.trim())return;const update=await window.supabaseClient.from("repair_updates").insert({request_id:id,contractor_id:currentUser.id,update_text:text.trim(),status:"Completed"});if(update.error){alert(update.error.message);return}const r=await window.supabaseClient.from("maintenance_requests").update({status:"Completed"}).eq("id",id).eq("assigned_contractor_id",currentUser.id);if(r.error){alert(r.error.message);return}await loadJobs()}
+document.querySelectorAll("#jobTabs .tab").forEach(btn=>btn.onclick=()=>{document.querySelectorAll("#jobTabs .tab").forEach(x=>x.classList.remove("active"));btn.classList.add("active");renderJobs(btn.dataset.status)});document.getElementById("logoutBtn").onclick=async e=>{e.preventDefault();await window.supabaseClient.auth.signOut();location.href="../index.html"};init();
+</script>
 </body>
 </html>

@@ -1520,3 +1520,160 @@ input:disabled {
         padding: 20px;
     }
 }
+
+.page-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.panel-title {
+    margin: 0 0 24px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.manager-form-panel {
+    max-width: none;
+    width: 100%;
+}
+
+.hidden-panel {
+    display: none;
+}
+
+.form-row-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.manager-request-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px;
+}
+
+.manager-request-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.manager-request-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.manager-request-description {
+    margin: 10px 0;
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.manager-request-actions {
+    width: 190px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.manager-request-actions label {
+    margin: 0;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.manager-request-actions select {
+    margin-top: 5px;
+    padding: 8px 10px;
+    font-size: 12px;
+}
+
+@media (max-width: 900px) {
+    .form-row-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .manager-request-card {
+        flex-wrap: wrap;
+    }
+
+    .manager-request-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .page-title-row {
+        flex-direction: column;
+    }
+
+    .page-title-row .btn-primary {
+        width: 100%;
+    }
+
+    .manager-request-actions {
+        grid-template-columns: 1fr;
+    }
+}
+
+.property-tenant-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #fff;
+    color: #334155;
+    font-size: 13px;
+}
+
+.property-tenant-select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.job-status-select {
+    min-width: 135px;
+    width: auto;
+    padding: 7px 10px;
+    font-size: 12px;
+}
+
+.notification-wrap{position:relative;z-index:10000}
+.job-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:20px}
+.job-card,.manager-request-card,.contractor-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px}
+.job-top,.manager-request-top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.job-body{min-width:0}
+.job-bottom{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:18px;padding-top:14px;border-top:1px solid #e2e8f0}
+.job-status-select,.manager-request-actions select,.property-tenant-select{border:1px solid #cbd5e1;border-radius:8px;padding:8px 10px;background:#fff;color:#334155}
+.job-update{margin-top:16px;padding:14px;background:#f8fafc;border-radius:10px}
+.job-update p{margin:0}
+.update-form{margin-top:16px;display:grid;gap:10px}
+.update-form textarea{width:100%;box-sizing:border-box;min-height:90px;resize:vertical}
+.update-actions{display:flex;justify-content:flex-end;gap:10px}
+.contractor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:20px}
+.contractor-card-header{display:flex;align-items:center;gap:12px}
+.contractor-card-avatar{width:48px;height:48px;border-radius:50%;overflow:hidden;background:#dbeafe;color:#2563eb;display:flex;align-items:center;justify-content:center;font-weight:700}
+.contractor-card-avatar img{width:100%;height:100%;object-fit:cover}
+.contractor-card h3{margin:0;color:#1e293b;font-size:16px}
+.contractor-card p{margin:4px 0 0;color:#64748b;font-size:13px}
+.contractor-card-stats{display:flex;gap:18px;margin-top:18px;padding-top:14px;border-top:1px solid #e2e8f0}
+.contractor-card-stats span{color:#64748b;font-size:12px}
+.contractor-card-stats strong{display:block;color:#1e293b;font-size:18px}
+.profile-panel .profile-photo-section{display:flex;flex-direction:column;gap:6px}
+.role-profile{max-width:720px}
+@media(max-width:800px){.stats{display:grid;grid-template-columns:1fr 1fr}.job-bottom{align-items:stretch;flex-direction:column}.job-bottom select{width:100%}}
+@media(max-width:560px){.stats{grid-template-columns:1fr}.content{padding:20px}.job-top,.manager-request-top{flex-direction:column}}
