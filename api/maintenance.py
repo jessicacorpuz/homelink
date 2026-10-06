@@ -58,3 +58,19 @@ class handler(BaseHTTPRequestHandler):
             return self._json(e.code, {'error': detail})
         except Exception as e:
             return self._json(500, {'error': str(e)})
+
+user_id = user["id"]
+
+request_data = {
+    "tenant_id": user_id,
+    "property_name": data["property_name"],
+    "unit": data["unit"],
+    "issue_type": data["issue_type"],
+    "title": data["title"],
+    "description": data["description"],
+    "priority": data.get("priority", "Normal")
+}
+
+result = supabase.table("maintenance_requests").insert(request_data).execute()
+
+"tenant_id": user_id,
