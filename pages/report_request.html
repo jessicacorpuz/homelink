@@ -32,9 +32,9 @@
     <div class="topbar">
       <div class="bell"><i class="fa-regular fa-bell"></i><span class="dot"></span></div>
       <div class="user">
-        <div class="avatar">AR</div>
+        <div class="avatar" id="top-avatar">AR</div>
         <div class="user-info">
-          <p class="user-name">Alex Rivera</p>
+          <p class="user-name" id="top-name">Loading...</p>
           <p class="user-role">Tenant</p>
         </div>
         <i class="fa-solid fa-chevron-down"></i>
@@ -154,18 +154,29 @@ async function loadAssignedProperties() {
   const { data: sessionData } = await window.supabaseClient.auth.getSession();
   const session = sessionData.session;
   if (!session) return;
-  const { data, error } = await window.supabaseClient.from("properties").select("id,property_name,unit,address,property_type").eq("tenant_id", session.user.id).eq("status", "Active").order("property_name");
+  const profile = await window.supabaseClient.from("profiles").select("full_name,email,role,avatar_url").eq("id", session.user.id).single();
+  if (profile.error || String(profile.data?.role || "").toLowerCase() !== "tenant") {
+    alert("This page is only available to tenant accounts.");
+    window.location.href = "../index.html";
+    return;
+  }
+  const name = profile.data.full_name || profile.data.email || session.user.email || "Tenant";
+  document.getElementById("top-name").textContent = name;
+  document.getElementById("top-avatar").innerHTML = profile.data.avatar_url ? `<img src="${escapeHtml(profile.data.avatar_url)}" alt="">` : initials(name);
+  const { data, error } = await window.supabaseClient.from("properties").select("id,property_name,unit,address,property_type,status").eq("tenant_id", session.user.id).order("property_name");
   const select = document.getElementById("property");
-  if (error) { select.innerHTML = '<option value="">Could not load properties</option>'; return; }
+  if (error) { select.innerHTML = `<option value="">Could not load properties</option>`; alert("Could not load your properties: " + error.message); return; }
   assignedProperties = data || [];
   if (!assignedProperties.length) {
-    select.innerHTML = '<option value="">No properties assigned</option>';
+    select.innerHTML = '<option value="">No properties assigned to your account</option>';
     document.getElementById("unit").value = "";
     return;
   }
   select.innerHTML = '<option value="">Select a property</option>' + assignedProperties.map(p => `<option value="${p.id}">${escapeHtml(p.property_name)}${p.unit ? " - " + escapeHtml(p.unit) : ""}</option>`).join("");
   select.addEventListener("change", updateSelectedProperty);
 }
+
+function initials(name) { return String(name || "Tenant").trim().split(/\s+/).slice(0,2).map(x => x[0]).join("").toUpperCase() || "T"; }
 
 function updateSelectedProperty() {
   const property = assignedProperties.find(p => p.id === document.getElementById("property").value);
