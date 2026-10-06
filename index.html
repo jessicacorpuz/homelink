@@ -74,5 +74,83 @@
 </div>
 
 <script src="static/js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="static/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="static/supabase.js"></script>
+
+<script>
+async function signIn() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const role = document.getElementById("selected-role").value;
+
+    if (!email || !password) {
+        alert("Please enter your email and password.");
+        return;
+    }
+
+    try {
+        const { data, error } = await window.supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+
+        if (error) {
+            alert(error.message);
+            return;
+        }
+
+        if (!data.user) {
+            alert("Unable to sign in.");
+            return;
+        }
+
+        const { data: profile, error: profileError } =
+            await window.supabaseClient
+                .from("profiles")
+                .select("id, full_name, email, role")
+                .eq("id", data.user.id)
+                .single();
+
+        if (profileError) {
+            console.error(profileError);
+            alert("Your account was found, but your profile could not be loaded.");
+            return;
+        }
+
+        if (profile.role !== role) {
+            await window.supabaseClient.auth.signOut();
+
+            alert(
+                "This account is registered as a " +
+                profile.role +
+                ". Please select the correct role."
+            );
+
+            return;
+        }
+
+        if (profile.role === "tenant") {
+            window.location.href = "pages/tenant_dashboard.html";
+
+        } else if (profile.role === "manager") {
+            window.location.href = "pages/manager_dashboard.html";
+
+        } else if (profile.role === "contractor") {
+            window.location.href = "pages/contractor_view.html";
+
+        } else {
+            await window.supabaseClient.auth.signOut();
+
+            alert("Your account has an invalid role.");
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert("Something went wrong while signing in.");
+    }
+}
+</script>
 </body>
 </html>
