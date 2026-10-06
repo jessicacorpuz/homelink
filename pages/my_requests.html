@@ -16,56 +16,260 @@
         <div class="brand-icon"><i class="fa-solid fa-house"></i></div>
         <span class="brand-name">HomeLink</span>
       </div>
+
       <nav class="nav">
-        <a href="tenant_dashboard.html"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a>
-        <a href="#"><i class="fa-solid fa-building"></i> My Properties</a>
-        <a href="my_requests.html" class="active"><i class="fa-solid fa-screwdriver-wrench"></i> Maintenance Requests</a>
-        <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+        <a href="tenant_dashboard.html">
+          <i class="fa-solid fa-table-cells-large"></i> Dashboard
+        </a>
+
+        <a href="#">
+          <i class="fa-solid fa-building"></i> My Properties
+        </a>
+
+        <a href="my_requests.html" class="active">
+          <i class="fa-solid fa-screwdriver-wrench"></i> Maintenance Requests
+        </a>
+
+        <a href="profile.html">
+          <i class="fa-solid fa-user"></i> Profile
+        </a>
       </nav>
     </div>
+
     <div class="logout-wrap">
-      <a href="../index.html"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a>
+      <a href="../index.html">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out
+      </a>
     </div>
   </aside>
 
   <div class="main">
+
     <div class="topbar">
-      <div class="bell"><i class="fa-regular fa-bell"></i><span class="dot"></span></div>
+      <div class="bell">
+        <i class="fa-regular fa-bell"></i>
+        <span class="dot"></span>
+      </div>
+
       <div class="user">
         <div class="avatar"></div>
+
         <div class="user-info">
           <p class="user-name"></p>
           <p class="user-role">Tenant</p>
         </div>
+
         <i class="fa-solid fa-chevron-down"></i>
       </div>
     </div>
 
     <div class="content">
+
       <div class="page-head">
         <div>
           <h1 class="page-title">My Maintenance Requests</h1>
           <p class="page-sub">Track the status of your requests.</p>
         </div>
-        <a href="report_request.html" class="btn-primary" style="display:inline-flex;align-items:center;gap:8px;">
-          <i class="fa-solid fa-plus"></i> New Request
+
+        <a href="report_request.html"
+           class="btn-primary"
+           style="display:inline-flex;align-items:center;gap:8px;">
+          <i class="fa-solid fa-plus"></i>
+          New Request
         </a>
       </div>
 
       <div class="tabs">
-        <button class="tab active" onclick="filterStatus(this, 'All')">All</button>
-        <button class="tab" onclick="filterStatus(this, 'Open')">Open</button>
-        <button class="tab" onclick="filterStatus(this, 'In Progress')">In Progress</button>
-        <button class="tab" onclick="filterStatus(this, 'Completed')">Completed</button>
+        <button class="tab active" onclick="filterRequests(this, 'All')">
+          All
+        </button>
+
+        <button class="tab" onclick="filterRequests(this, 'Open')">
+          Open
+        </button>
+
+        <button class="tab" onclick="filterRequests(this, 'In Progress')">
+          In Progress
+        </button>
+
+        <button class="tab" onclick="filterRequests(this, 'Completed')">
+          Completed
+        </button>
       </div>
 
-      <div class="card-list">
-        <p class="empty-state">No maintenance requests yet.</p>
+      <div id="request-list" class="card-list">
+        <p class="empty-state">Loading requests...</p>
       </div>
+
     </div>
   </div>
 </div>
 
-<script src="../static/js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../static/supabase.js"></script>
+
+<script>
+
+let allRequests = [];
+
+document.addEventListener("DOMContentLoaded", loadRequests);
+
+async function loadRequests() {
+
+  const { data: sessionData, error: sessionError } =
+    await window.supabaseClient.auth.getSession();
+
+  if (sessionError || !sessionData.session) {
+    window.location.href = "../index.html";
+    return;
+  }
+
+  const user = sessionData.session.user;
+
+  const { data, error } = await window.supabaseClient
+    .from("maintenance_requests")
+    .select("*")
+    .eq("tenant_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error(error);
+
+    document.getElementById("request-list").innerHTML =
+      '<p class="empty-state">Could not load your maintenance requests.</p>';
+
+    return;
+  }
+
+  allRequests = data || [];
+
+  renderRequests(allRequests);
+}
+
+function renderRequests(requests) {
+
+  const container = document.getElementById("request-list");
+
+  if (!requests.length) {
+    container.innerHTML =
+      '<p class="empty-state">No maintenance requests yet.</p>';
+    return;
+  }
+
+  container.innerHTML = requests.map(request => {
+
+    const date = request.created_at
+      ? new Date(request.created_at).toLocaleDateString()
+      : "Unknown date";
+
+    const status = request.status || "Open";
+
+    const priority = request.priority || "Normal";
+
+    return `
+      <div class="request-card" data-status="${escapeHtml(status)}"
+           style="background:white;border:1px solid #e2e8f0;border-radius:14px;padding:20px;margin-bottom:14px;">
+
+        <div style="display:flex;justify-content:space-between;gap:15px;align-items:flex-start;">
+
+          <div>
+            <h3 style="margin:0 0 7px;color:#1e293b;">
+              ${escapeHtml(request.title)}
+            </h3>
+
+            <p style="margin:0;color:#64748b;font-size:14px;">
+              ${escapeHtml(request.property_name)}
+              · ${escapeHtml(request.unit)}
+            </p>
+          </div>
+
+          <span style="
+            padding:6px 10px;
+            border-radius:999px;
+            background:#eff6ff;
+            color:#2563eb;
+            font-size:12px;
+            font-weight:600;
+            white-space:nowrap;
+          ">
+            ${escapeHtml(status)}
+          </span>
+
+        </div>
+
+        <div style="margin-top:15px;color:#475569;font-size:14px;">
+          ${escapeHtml(request.description)}
+        </div>
+
+        <div style="
+          display:flex;
+          flex-wrap:wrap;
+          gap:18px;
+          margin-top:16px;
+          padding-top:14px;
+          border-top:1px solid #e2e8f0;
+          color:#64748b;
+          font-size:13px;
+        ">
+
+          <span>
+            <i class="fa-solid fa-wrench"></i>
+            ${escapeHtml(request.issue_type)}
+          </span>
+
+          <span>
+            <i class="fa-solid fa-flag"></i>
+            ${escapeHtml(priority)}
+          </span>
+
+          <span>
+            <i class="fa-regular fa-calendar"></i>
+            ${date}
+          </span>
+
+        </div>
+
+      </div>
+    `;
+
+  }).join("");
+}
+
+function filterRequests(button, status) {
+
+  document.querySelectorAll(".tabs .tab").forEach(tab => {
+    tab.classList.remove("active");
+  });
+
+  button.classList.add("active");
+
+  if (status === "All") {
+    renderRequests(allRequests);
+    return;
+  }
+
+  const filtered = allRequests.filter(request =>
+    (request.status || "Open") === status
+  );
+
+  renderRequests(filtered);
+}
+
+function escapeHtml(value) {
+
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+</script>
+
 </body>
 </html>
