@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HomeLink - My Properties</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../static/css/styles.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <aside class="sidebar">
+        <div>
+            <div class="brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-house"></i>
+                </div>
+                <span class="brand-name">HomeLink</span>
+            </div>
+
+            <nav class="nav">
+                <a href="tenant_dashboard.html">
+                    <i class="fa-solid fa-table-cells-large"></i>
+                    Dashboard
+                </a>
+
+                <a href="my_properties.html" class="active">
+                    <i class="fa-solid fa-building"></i>
+                    My Properties
+                </a>
+
+                <a href="my_requests.html">
+                    <i class="fa-solid fa-screwdriver-wrench"></i>
+                    Maintenance Requests
+                </a>
+
+                <a href="profile.html">
+                    <i class="fa-solid fa-user"></i>
+                    Profile
+                </a>
+            </nav>
+        </div>
+
+        <div class="logout-wrap">
+            <a href="../index.html" id="logoutBtn">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                Log Out
+            </a>
+        </div>
+    </aside>
+
+    <main class="main">
+
+        <div class="topbar">
+            <div class="bell">
+                <i class="fa-regular fa-bell"></i>
+                <span class="dot"></span>
+            </div>
+
+            <div class="user">
+                <div class="avatar" id="profileAvatar"></div>
+
+                <div class="user-info">
+                    <p class="user-name" id="userName">Loading...</p>
+                    <p class="user-role">Tenant</p>
+                </div>
+
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+        </div>
+
+        <section class="content">
+
+            <div class="page-head">
+                <div>
+                    <h1 class="page-title">My Properties</h1>
+                    <p class="page-sub">
+                        View the properties assigned to your account.
+                    </p>
+                </div>
+            </div>
+
+            <div id="propertyList" class="property-grid">
+                <div class="loading-card">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <p>Loading your properties...</p>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../static/supabase.js"></script>
+
+<script>
+
+let currentUser = null;
+
+document.addEventListener("DOMContentLoaded", initializePage);
+
+async function initializePage() {
+
+    const {
+        data: sessionData,
+        error: sessionError
+    } = await window.supabaseClient.auth.getSession();
+
+    if (
+        sessionError ||
+        !sessionData ||
+        !sessionData.session
+    ) {
+        window.location.href = "../index.html";
+        return;
+    }
+
+    currentUser = sessionData.session.user;
+
+    await loadProfile();
+    await loadProperties();
+}
+
+async function loadProfile() {
+
+    const {
+        data,
+        error
+    } = await window.supabaseClient
+        .from("profiles")
+        .select("full_name, email")
+        .eq("id", currentUser.id)
+        .single();
+
+    if (error) {
+        document.getElementById("userName").textContent =
+            currentUser.email || "Tenant";
+        return;
+    }
+
+    document.getElementById("userName").textContent =
+        data.full_name ||
+        data.email ||
+        currentUser.email ||
+        "Tenant";
+}
+
+async function loadProperties() {
+
+    const propertyList =
+        document.getElementById("propertyList");
+
+    const {
+        data,
+        error
+    } = await window.supabaseClient
+        .from("properties")
+        .select("*")
+        .eq("tenant_id", currentUser.id)
+        .order("created_at", {
+            ascending: false
+        });
+
+    if (error) {
+
+        console.error(error);
+
+        propertyList.innerHTML = `
+            <div class="empty-card">
+                <div class="empty-icon">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+
+                <h2>Unable to Load Properties</h2>
+
+                <p>
+                    ${escapeHtml(error.message)}
+                </p>
+            </div>
+        `;
+
+        return;
+    }
+
+    if (!data || data.length === 0) {
+
+        propertyList.innerHTML = `
+            <div class="empty-card">
+                <div class="empty-icon">
+                    <i class="fa-solid fa-building"></i>
+                </div>
+
+                <h2>No Properties Yet</h2>
+
+                <p>
+                    You currently don't have any properties assigned
+                    to your account.
+                </p>
+
+                <p class="small-text">
+                    Your property manager can assign a property to you.
+                </p>
+            </div>
+        `;
+
+        return;
+    }
+
+    propertyList.innerHTML =
+        data.map(createPropertyCard).join("");
+}
+
+function createPropertyCard(property) {
+
+    const status =
+        property.status || "Active";
+
+    const propertyType =
+        property.property_type || "Property";
+
+    const address =
+        property.address || "Address not provided";
+
+    const unit =
+        property.unit || "No unit specified";
+
+    const leaseStart =
+        property.lease_start
+            ? formatDate(property.lease_start)
+            : "Not specified";
+
+    const leaseEnd =
+        property.lease_end
+            ? formatDate(property.lease_end)
+            : "Not specified";
+
+    return `
+        <article class="property-card">
+
+            <div class="property-header">
+
+                <div class="property-icon">
+                    <i class="fa-solid fa-building"></i>
+                </div>
+
+                <span class="property-status ${getStatusClass(status)}">
+                    ${escapeHtml(status)}
+                </span>
+
+            </div>
+
+            <div class="property-body">
+
+                <h2>
+                    ${escapeHtml(
+                        property.property_name ||
+                        "Unnamed Property"
+                    )}
+                </h2>
+
+                <p class="property-type">
+                    ${escapeHtml(propertyType)}
+                </p>
+
+                <div class="property-details">
+
+                    <div class="detail-row">
+                        <i class="fa-solid fa-location-dot"></i>
+
+                        <div>
+                            <span>Address</span>
+                            <strong>
+                                ${escapeHtml(address)}
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="detail-row">
+                        <i class="fa-solid fa-door-open"></i>
+
+                        <div>
+                            <span>Unit</span>
+                            <strong>
+                                ${escapeHtml(unit)}
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="detail-row">
+                        <i class="fa-regular fa-calendar"></i>
+
+                        <div>
+                            <span>Lease Start</span>
+                            <strong>
+                                ${leaseStart}
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="detail-row">
+                        <i class="fa-regular fa-calendar-check"></i>
+
+                        <div>
+                            <span>Lease End</span>
+                            <strong>
+                                ${leaseEnd}
+                            </strong>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="property-footer">
+
+                <a
+                    href="report_request.html?property=${encodeURIComponent(property.id)}"
+                    class="property-button"
+                >
+                    <i class="fa-solid fa-screwdriver-wrench"></i>
+                    Report Maintenance
+                </a>
+
+                <a
+                    href="my_requests.html"
+                    class="property-button secondary"
+                >
+                    <i class="fa-solid fa-list"></i>
+                    View Requests
+                </a>
+
+            </div>
+
+        </article>
+    `;
+}
+
+function getStatusClass(status) {
+
+    const normalized =
+        String(status).toLowerCase();
+
+    if (normalized === "active") {
+        return "status-active";
+    }
+
+    if (
+        normalized === "inactive" ||
+        normalized === "ended"
+    ) {
+        return "status-inactive";
+    }
+
+    return "status-default";
+}
+
+function formatDate(date) {
+
+    const parsed = new Date(date);
+
+    if (isNaN(parsed.getTime())) {
+        return "Not specified";
+    }
+
+    return parsed.toLocaleDateString(
+        "en-US",
+        {
+            year: "numeric",
+            month: "long",
+            day: "numeric"
+        }
+    );
+}
+
+function escapeHtml(value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+        return "";
+    }
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+document
+    .getElementById("logoutBtn")
+    .addEventListener("click", async function(event) {
+
+        event.preventDefault();
+
+        await window.supabaseClient.auth.signOut();
+
+        window.location.href = "../index.html";
+    });
+
+</script>
+
+</body>
+</html>
