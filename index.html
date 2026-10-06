@@ -37,19 +37,21 @@
         <div class="role-tab" onclick="selectRole(this, 'contractor')">Contractor</div>
       </div>
 
-      <form id="login-form" action="/login" method="POST" onsubmit="return false;">
+      <form id="login-form" onsubmit="event.preventDefault(); signIn();">
         <input type="hidden" id="selected-role" name="role" value="tenant">
 
         <div class="form-group">
           <label for="email">Email address</label>
-          <input type="email" id="email" name="email" placeholder="you@example.com">
+          <input type="email" id="email" name="email" placeholder="you@example.com" required>
         </div>
 
         <div class="form-group">
           <label for="password">Password</label>
           <div class="password-wrap">
-            <input type="password" id="password" name="password" placeholder="Enter your password">
-            <button type="button" onclick="togglePassword(this)"><i class="fa-regular fa-eye"></i></button>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <button type="button" onclick="togglePassword(this)">
+              <i class="fa-regular fa-eye"></i>
+            </button>
           </div>
         </div>
 
@@ -58,17 +60,22 @@
             <input type="checkbox" name="remember" checked>
             Remember me
           </label>
-          <button type="button" class="forgot-link">Forgot password?</button>
+          <button type="button" class="forgot-link" onclick="resetPassword()">Forgot password?</button>
         </div>
 
-        <button type="button" class="btn-primary btn-block" onclick="signIn()">Sign in</button>
+        <button type="submit" class="btn-primary btn-block" id="sign-in-button">Sign in</button>
       </form>
 
       <div class="divider">or continue with</div>
 
-      <button class="btn-social"><i class="fa-brands fa-google"></i> Continue with Google</button>
+      <button type="button" class="btn-social" onclick="signInWithGoogle()">
+        <i class="fa-brands fa-google"></i> Continue with Google
+      </button>
 
-      <p class="signup-line">Don't have an account? <a href="#">Sign up</a></p>
+      <p class="signup-line">
+        Don't have an account?
+        <a href="signup.html">Sign up</a>
+      </p>
     </div>
   </div>
 </div>
@@ -76,25 +83,28 @@
 <script src="static/js/app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="static/supabase.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="static/supabase.js"></script>
 
 <script>
 async function signIn() {
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
-    const role = document.getElementById("selected-role").value;
+    const selectedRole = document.getElementById("selected-role").value;
+    const button = document.getElementById("sign-in-button");
 
     if (!email || !password) {
         alert("Please enter your email and password.");
         return;
     }
 
+    button.disabled = true;
+    button.textContent = "Signing in...";
+
     try {
-        const { data, error } = await window.supabaseClient.auth.signInWithPassword({
-            email: email,
-            password: password
-        });
+        const { data, error } =
+            await window.supabaseClient.auth.signInWithPassword({
+                email,
+                password
+            });
 
         if (error) {
             alert(error.message);
@@ -115,42 +125,75 @@ async function signIn() {
 
         if (profileError) {
             console.error(profileError);
-            alert("Your account was found, but your profile could not be loaded.");
+            await window.supabaseClient.auth.signOut();
+            alert("Your account exists, but your HomeLink profile could not be found.");
             return;
         }
 
-        if (profile.role !== role) {
+        if (profile.role !== selectedRole) {
             await window.supabaseClient.auth.signOut();
-
             alert(
                 "This account is registered as a " +
                 profile.role +
                 ". Please select the correct role."
             );
-
             return;
         }
 
         if (profile.role === "tenant") {
             window.location.href = "pages/tenant_dashboard.html";
-
         } else if (profile.role === "manager") {
             window.location.href = "pages/manager_dashboard.html";
-
         } else if (profile.role === "contractor") {
             window.location.href = "pages/contractor_view.html";
-
         } else {
             await window.supabaseClient.auth.signOut();
-
             alert("Your account has an invalid role.");
         }
 
     } catch (error) {
         console.error(error);
         alert("Something went wrong while signing in.");
+    } finally {
+        button.disabled = false;
+        button.textContent = "Sign in";
     }
 }
+
+async function signInWithGoogle() {
+    const { error } = await window.supabaseClient.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+            redirectTo: window.location.origin + "/google-callback.html"
+        }
+    });
+
+    if (error) {
+        console.error(error);
+        alert(error.message);
+    }
+}
+
+async function resetPassword() {
+    const email = document.getElementById("email").value.trim();
+
+    if (!email) {
+        alert("Enter your email address first, then click Forgot password.");
+        return;
+    }
+
+    const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + "/reset-password.html"
+    });
+
+    if (error) {
+        alert(error.message);
+        return;
+    }
+
+    alert("Password reset instructions have been sent to your email.");
+}
 </script>
+
 </body>
 </html>
