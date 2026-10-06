@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HomeLink - Sign In</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="static/css/styles.css">
+</head>
+<body>
+
+<div class="login-page">
+  <div class="login-hero">
+    <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&q=80" alt="Apartment building">
+    <div class="login-hero-overlay"></div>
+    <div class="login-hero-brand">
+      <div class="brand-icon"><i class="fa-solid fa-house"></i></div>
+      <div>
+        <p>HomeLink</p>
+        <p>Property Management Made Simple</p>
+      </div>
+    </div>
+    <div class="login-hero-text">
+      <h1>Report Issues.<br>Home Management Made Easier.</h1>
+      <p>A faster, easier way for tenants, property managers, and contractors to work together.</p>
+    </div>
+  </div>
+
+  <div class="login-form-side">
+    <div class="login-form">
+      <h2>Welcome Back!</h2>
+      <p class="page-sub">Sign in to your account</p>
+
+      <div class="role-tabs">
+        <div class="role-tab active" onclick="selectRole(this, 'tenant')">Tenant</div>
+        <div class="role-tab" onclick="selectRole(this, 'manager')">Manager</div>
+        <div class="role-tab" onclick="selectRole(this, 'contractor')">Contractor</div>
+      </div>
+
+      <form id="login-form" onsubmit="event.preventDefault(); signIn();">
+        <input type="hidden" id="selected-role" name="role" value="tenant">
+
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="password-wrap">
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <button type="button" onclick="togglePassword(this)">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="checkbox-label">
+            <input type="checkbox" name="remember" checked>
+            Remember me
+          </label>
+          <button type="button" class="forgot-link" onclick="resetPassword()">Forgot password?</button>
+        </div>
+
+        <button type="submit" class="btn-primary btn-block" id="sign-in-button">Sign in</button>
+      </form>
+
+      <div class="divider">or continue with</div>
+
+      <button type="button" class="btn-social" onclick="signInWithGoogle()">
+        <i class="fa-brands fa-google"></i> Continue with Google
+      </button>
+
+      <p class="signup-line">
+        Don't have an account?
+        <a href="signup.html">Sign up</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script src="static/js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="static/supabase.js"></script>
+
+<script>
+async function signIn() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const selectedRole = document.getElementById("selected-role").value;
+    const button = document.getElementById("sign-in-button");
+
+    if (!email || !password) {
+        alert("Please enter your email and password.");
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Signing in...";
+
+    try {
+        const { data, error } =
+            await window.supabaseClient.auth.signInWithPassword({
+                email,
+                password
+            });
+
+        if (error) {
+            alert(error.message);
+            return;
+        }
+
+        if (!data.user) {
+            alert("Unable to sign in.");
+            return;
+        }
+
+        const { data: profile, error: profileError } =
+            await window.supabaseClient
+                .from("profiles")
+                .select("id, full_name, email, role")
+                .eq("id", data.user.id)
+                .single();
+
+        if (profileError) {
+            console.error(profileError);
+            await window.supabaseClient.auth.signOut();
+            alert("Your account exists, but your HomeLink profile could not be found.");
+            return;
+        }
+
+        if (profile.role !== selectedRole) {
+            await window.supabaseClient.auth.signOut();
+            alert(
+                "This account is registered as a " +
+                profile.role +
+                ". Please select the correct role."
+            );
+            return;
+        }
+
+        if (profile.role === "tenant") {
+            window.location.href = "pages/tenant_dashboard.html";
+        } else if (profile.role === "manager") {
+            window.location.href = "pages/manager_dashboard.html";
+        } else if (profile.role === "contractor") {
+            window.location.href = "pages/contractor_view.html";
+        } else {
+            await window.supabaseClient.auth.signOut();
+            alert("Your account has an invalid role.");
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert("Something went wrong while signing in.");
+    } finally {
+        button.disabled = false;
+        button.textContent = "Sign in";
+    }
+}
+
+async function signInWithGoogle() {
+    const { error } = await window.supabaseClient.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+            redirectTo: window.location.origin + "/google-callback.html"
+        }
+    });
+
+    if (error) {
+        console.error(error);
+        alert(error.message);
+    }
+}
+
+async function resetPassword() {
+    const email = document.getElementById("email").value.trim();
+
+    if (!email) {
+        alert("Enter your email address first, then click Forgot password.");
+        return;
+    }
+
+    const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + "/reset-password.html"
+    });
+
+    if (error) {
+        alert(error.message);
+        return;
+    }
+
+    alert("Password reset instructions have been sent to your email.");
+}
+</script>
+
+</body>
+</html>
