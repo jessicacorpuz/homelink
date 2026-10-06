@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HomeLink - Report a Maintenance Request</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../static/css/styles.css">
+</head>
+<body data-role="tenant">
+
+<div class="app">
+  <aside class="sidebar">
+    <div>
+      <div class="brand">
+        <div class="brand-icon"><i class="fa-solid fa-house"></i></div>
+        <span class="brand-name">HomeLink</span>
+      </div>
+      <nav class="nav">
+        <a href="tenant_dashboard.html"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a>
+        <a href="my_properties.html"><i class="fa-solid fa-building"></i> My Properties</a>
+        <a href="my_requests.html" class="active"><i class="fa-solid fa-screwdriver-wrench"></i> Maintenance Requests</a>
+        <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+      </nav>
+    </div>
+    <div class="logout-wrap">
+      <a href="../index.html"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="bell"><i class="fa-regular fa-bell"></i><span class="dot"></span></div>
+      <div class="user">
+        <div class="avatar" id="top-avatar">AR</div>
+        <div class="user-info">
+          <p class="user-name" id="top-name">Loading...</p>
+          <p class="user-role">Tenant</p>
+        </div>
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+    </div>
+
+    <div class="content">
+      <h1 class="page-title">Report a Maintenance Request</h1>
+      <p class="page-sub">Let us know what's wrong. Add photos or videos if possible.</p>
+
+      <div class="stepper">
+        <div class="step active" data-step="1">
+          <div class="step-circle">1</div>
+          <div class="step-label">Issue Details</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" data-step="2">
+          <div class="step-circle">2</div>
+          <div class="step-label">Upload Media</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" data-step="3">
+          <div class="step-circle">3</div>
+          <div class="step-label">Review &amp; Submit</div>
+        </div>
+      </div>
+
+      <form id="request-form" class="panel" action="/api/requests" method="POST" onsubmit="return false;">
+
+        <div class="tab-panel step-panel active" data-step="1">
+          <div class="form-group">
+            <label for="property">Property</label>
+            <select id="property" name="property_id"><option value="">Loading your properties...</option></select>
+          </div>
+          <div class="form-group">
+            <label for="unit">Unit</label>
+            <input type="text" id="unit" name="unit" readonly>
+          </div>
+          <div class="form-group">
+            <label for="issue-type">Issue Type</label>
+            <select id="issue-type" name="issue_type">
+              <option value="" selected disabled>Select an issue type</option>
+              <option>Plumbing</option>
+              <option>HVAC</option>
+              <option>Electrical</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="priority">Priority</label>
+            <select id="priority" name="priority"><option>Low</option><option selected>Normal</option><option>High</option><option>Emergency</option></select>
+          </div>
+          <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" placeholder="Leaking faucet">
+          </div>
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="3" placeholder="The faucet in the kitchen is leaking. It started yesterday and it's getting worse."></textarea>
+          </div>
+        </div>
+
+        <div class="tab-panel step-panel" data-step="2">
+          <label>Add Photos or Videos (optional)</label>
+          <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+            <input type="file" name="attachments" multiple accept="image/*,video/mp4,video/webm,video/quicktime" style="display:none" id="file-input">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <p>Drag and drop files here, or click to browse</p>
+            <p class="hint">Supports JPG, PNG, MP4, WEBM, MOV (Max 30MB each)</p><div id="file-list" style="margin-top:12px;font-size:13px;"></div>
+          </div>
+        </div>
+
+        <div class="tab-panel step-panel" data-step="3">
+          <p style="font-size:14px;font-weight:600;color:#1e293b;margin:0 0 8px;">Review your request</p>
+          <div class="review-row"><span>Property</span><span id="review-property"></span></div>
+          <div class="review-row"><span>Unit</span><span id="review-unit"></span></div>
+          <div class="review-row"><span>Issue Type</span><span id="review-issue-type"></span></div>
+          <div class="review-row"><span>Title</span><span id="review-title"></span></div>
+          <div class="review-row" style="border-bottom:none;">
+            <span>Description</span>
+            <span id="review-description" style="max-width:260px;text-align:right;"></span>
+          </div>
+          <div class="review-row"><span>Priority</span><span id="review-priority"></span>
+          </div>
+        </div>
+
+        <div class="panel-actions">
+          <button type="button" id="step-back" class="btn-secondary" onclick="stepBack()">Cancel</button>
+          <button type="button" id="step-next" class="btn-primary" onclick="stepNext()">Next</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="../static/js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../static/supabase.js"></script><script src="../static/notifications.js"></script>
+<script>
+let selectedFiles = [];
+let assignedProperties = [];
+const MAX_FILE_SIZE = 30 * 1024 * 1024;
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const { data } = await window.supabaseClient.auth.getSession();
+  if (!data.session) { window.location.href = "../index.html"; return; }
+  await window.initHomeLinkNotifications();
+  document.getElementById("file-input").addEventListener("change", e => addFiles(e.target.files));
+  await loadAssignedProperties();
+  const dz = document.getElementById("dropzone");
+  ["dragenter","dragover"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add("active"); }));
+  ["dragleave","drop"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove("active"); }));
+  dz.addEventListener("drop", e => addFiles(e.dataTransfer.files));
+});
+
+async function loadAssignedProperties() {
+  const { data: sessionData } = await window.supabaseClient.auth.getSession();
+  const session = sessionData.session;
+  if (!session) return;
+  const profile = await window.supabaseClient.from("profiles").select("full_name,email,role,avatar_url").eq("id", session.user.id).single();
+  if (profile.error || String(profile.data?.role || "").toLowerCase() !== "tenant") {
+    alert("This page is only available to tenant accounts.");
+    window.location.href = "../index.html";
+    return;
+  }
+  const name = profile.data.full_name || profile.data.email || session.user.email || "Tenant";
+  document.getElementById("top-name").textContent = name;
+  document.getElementById("top-avatar").innerHTML = profile.data.avatar_url ? `<img src="${escapeHtml(profile.data.avatar_url)}" alt="">` : initials(name);
+  const { data, error } = await window.supabaseClient.from("properties").select("id,property_name,unit,address,property_type,status").eq("tenant_id", session.user.id).order("property_name");
+  const select = document.getElementById("property");
+  if (error) { select.innerHTML = `<option value="">Could not load properties</option>`; alert("Could not load your properties: " + error.message); return; }
+  assignedProperties = data || [];
+  if (!assignedProperties.length) {
+    select.innerHTML = '<option value="">No properties assigned to your account</option>';
+    document.getElementById("unit").value = "";
+    return;
+  }
+  select.innerHTML = '<option value="">Select a property</option>' + assignedProperties.map(p => `<option value="${p.id}">${escapeHtml(p.property_name)}${p.unit ? " - " + escapeHtml(p.unit) : ""}</option>`).join("");
+  select.addEventListener("change", updateSelectedProperty);
+}
+
+function initials(name) { return String(name || "Tenant").trim().split(/\s+/).slice(0,2).map(x => x[0]).join("").toUpperCase() || "T"; }
+
+function updateSelectedProperty() {
+  const property = assignedProperties.find(p => p.id === document.getElementById("property").value);
+  document.getElementById("unit").value = property?.unit || "";
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]));
+}
+
+function addFiles(files) {
+  for (const file of files) {
+    if (file.size > MAX_FILE_SIZE) { alert(file.name + " is larger than 30MB."); continue; }
+    if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) { alert(file.name + " is not an image or video."); continue; }
+    selectedFiles.push(file);
+  }
+  renderFiles();
+}
+function renderFiles() {
+  document.getElementById("file-list").innerHTML = selectedFiles.length ? selectedFiles.map((f,i) => `<div style="display:flex;justify-content:space-between;padding:4px 0;"><span>\ud83d\udcc1 ${f.name}</span><button type="button" onclick="removeFile(${i})" style="border:0;background:none;color:#b91c1c;cursor:pointer;">Remove</button></div>`).join("") : "";
+}
+function removeFile(i) { selectedFiles.splice(i,1); renderFiles(); }
+
+async function submitRequest() {
+  const { data: sessionData } = await window.supabaseClient.auth.getSession();
+  const session = sessionData.session;
+  if (!session) { alert("Please sign in again."); return; }
+  const payload = {
+    property_id: document.getElementById("property").value,
+    property_name: assignedProperties.find(p => p.id === document.getElementById("property").value)?.property_name || "",
+    unit: document.getElementById("unit").value.trim(),
+    issue_type: document.getElementById("issue-type").value,
+    priority: document.getElementById("priority").value,
+    title: document.getElementById("title").value.trim(),
+    description: document.getElementById("description").value.trim()
+  };
+  if (!payload.property_id || !payload.property_name || !payload.issue_type || !payload.title || !payload.description) { alert("Please complete all issue details."); goToStep(1); return; }
+  const button = document.getElementById("step-next"); button.disabled = true; button.textContent = "Submitting...";
+  try {
+    const res = await fetch("../api/maintenance", { method:"POST", headers:{"Content-Type":"application/json", "Authorization":"Bearer " + session.access_token}, body:JSON.stringify(payload) });
+    const result = await res.json(); if (!res.ok) throw new Error(result.error || "Could not create request.");
+    const requestId = result.request.id;
+    for (const file of selectedFiles) {
+      const safe = file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+      const path = session.user.id + "/" + requestId + "/" + Date.now() + "-" + safe;
+      const up = await window.supabaseClient.storage.from("maintenance-media").upload(path, file, { upsert:false, contentType:file.type });
+      if (up.error) throw up.error;
+      const meta = await window.supabaseClient.from("maintenance_media").insert({ request_id:requestId, uploaded_by:session.user.id, file_path:path, file_name:file.name, file_type:file.type });
+      if (meta.error) throw meta.error;
+    }
+    alert("Maintenance request submitted successfully!");
+    window.location.href = "my_requests.html";
+  } catch (err) { console.error(err); alert("Could not submit the request: " + err.message); }
+  finally { button.disabled=false; button.textContent="Submit Request"; }
+}
+
+const originalStepNext = window.stepNext;
+window.stepNext = function() {
+  if (currentStep === 3) { submitRequest(); } else { goToStep(currentStep + 1); }
+};
+
+window.populateReview = function() {
+  const property = assignedProperties.find(p => p.id === document.getElementById("property").value);
+  document.getElementById("review-property").textContent = property ? property.property_name : "—";
+  document.getElementById("review-unit").textContent = property?.unit || "—";
+  document.getElementById("review-issue-type").textContent = document.getElementById("issue-type").value || "—";
+  document.getElementById("review-title").textContent = document.getElementById("title").value || "—";
+  document.getElementById("review-description").textContent = document.getElementById("description").value || "—";
+  document.getElementById("review-priority").textContent = document.getElementById("priority").value || "—";
+};
+</script>
+</body>
+</html>
