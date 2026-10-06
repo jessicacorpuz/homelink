@@ -139,15 +139,58 @@ let assignedProperties = [];
 const MAX_FILE_SIZE = 30 * 1024 * 1024;
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const { data } = await window.supabaseClient.auth.getSession();
-  if (!data.session) { window.location.href = "../index.html"; return; }
-  await window.initHomeLinkNotifications();
-  document.getElementById("file-input").addEventListener("change", e => addFiles(e.target.files));
-  await loadAssignedProperties();
-  const dz = document.getElementById("dropzone");
-  ["dragenter","dragover"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add("active"); }));
-  ["dragleave","drop"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove("active"); }));
-  dz.addEventListener("drop", e => addFiles(e.dataTransfer.files));
+  try {
+    if (!window.supabaseClient) {
+      alert("HomeLink could not connect to Supabase.");
+      return;
+    }
+
+    const { data, error } = await window.supabaseClient.auth.getSession();
+
+    if (error || !data.session) {
+      window.location.href = "../index.html";
+      return;
+    }
+
+    document.getElementById("file-input").addEventListener("change", e => addFiles(e.target.files));
+
+    await loadAssignedProperties();
+
+    if (typeof window.initHomeLinkNotifications === "function") {
+      try {
+        await window.initHomeLinkNotifications();
+      } catch (notificationError) {
+        console.error("Notification error:", notificationError);
+      }
+    }
+
+    const dz = document.getElementById("dropzone");
+
+    ["dragenter", "dragover"].forEach(ev =>
+      dz.addEventListener(ev, e => {
+        e.preventDefault();
+        dz.classList.add("active");
+      })
+    );
+
+    ["dragleave", "drop"].forEach(ev =>
+      dz.addEventListener(ev, e => {
+        e.preventDefault();
+        dz.classList.remove("active");
+      })
+    );
+
+    dz.addEventListener("drop", e => addFiles(e.dataTransfer.files));
+
+  } catch (error) {
+    console.error("HomeLink page error:", error);
+    const select = document.getElementById("property");
+
+    if (select) {
+      select.innerHTML =
+        '<option value="">Unable to load properties</option>';
+    }
+  }
 });
 
 async function loadAssignedProperties() {
