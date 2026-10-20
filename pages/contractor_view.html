@@ -11,7 +11,7 @@
 </head>
 <body data-role="contractor">
 <div class="app">
-<aside class="sidebar"><div><div class="brand"><div class="brand-icon"><i class="fa-solid fa-house"></i></div><span class="brand-name">HomeLink</span></div><nav class="nav"><a href="contractor_properties.html"><i class="fa-solid fa-building"></i> Properties</a><a href="contractor_view.html" class="active"><i class="fa-solid fa-screwdriver-wrench"></i> Assigned Jobs</a><a href="manager_contacts.html"><i class="fa-solid fa-address-book"></i> Contacts</a><a href="contractor_profile.html"><i class="fa-solid fa-user"></i> Profile</a></nav></div><div class="logout-wrap"><a href="../index.html" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a></div></aside>
+<aside class="sidebar"><div><div class="brand"><div class="brand-icon"><i class="fa-solid fa-house"></i></div><span class="brand-name">HomeLink</span></div><nav class="nav"><a href="contractor_properties.html"><i class="fa-solid fa-building"></i> Properties</a><a href="contractor_view.html" class="active"><i class="fa-solid fa-screwdriver-wrench"></i> Assigned Jobs</a><a href="contractor_contacts.html"><i class="fa-solid fa-address-book"></i> Contacts</a><a href="contractor_profile.html"><i class="fa-solid fa-user"></i> Profile</a></nav></div><div class="logout-wrap"><a href="../index.html" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a></div></aside>
 <main class="main"><div class="topbar"><div class="bell"><i class="fa-regular fa-bell"></i></div><div class="user"><div class="avatar" id="top-avatar"></div><div class="user-info"><p class="user-name" id="top-name">Loading...</p><p class="user-role">Contractor</p></div></div></div>
 <section class="content"><h1 class="page-title">My Assigned Jobs</h1><p class="page-sub">View jobs assigned by the property manager and send repair updates.</p><div class="tabs" id="jobTabs"><button class="tab active" data-status="Active">Active</button><button class="tab" data-status="Completed">Completed</button></div><div id="managerContact" class="panel manager-contact-panel" style="max-width:none;margin-top:20px;display:none"></div><div id="jobList" class="job-grid"><div class="loading-card"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading jobs...</p></div></div></section></main></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../static/supabase.js"></script><script src="../static/js/notifications.js"></script><script>
@@ -47,5 +47,6 @@ document.querySelectorAll("#jobTabs .tab").forEach(btn=>btn.onclick=()=>{documen
  }
 })();
 </script>
-<script src="../static/js/popups.js"></script>\n</body>
+<script src="../static/js/popups.js"></script>
+</body>
 </html>

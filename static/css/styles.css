@@ -1779,3 +1779,25 @@ input:disabled {
 .nav{display:flex;flex-direction:column;gap:5px;min-width:0}.nav a{display:flex;align-items:center;gap:11px;min-height:42px;box-sizing:border-box;line-height:1.3}.nav a i{width:18px;flex:0 0 18px;text-align:center;font-size:15px}.sidebar{flex:0 0 auto}.nav a span{min-width:0}
 @media(max-width:640px){.nav{flex-direction:row!important;align-items:center}.nav a{min-height:38px}}
 \n.request-edit-modal{text-align:left;max-height:90vh;overflow:auto}.request-edit-form{display:grid;gap:8px;text-align:left}.request-edit-form label{font-size:13px;font-weight:700;color:#334155;margin-top:5px}.request-edit-form input,.request-edit-form textarea,.request-edit-form select{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:9px;padding:11px 12px;font:inherit;color:#1e293b;background:#fff}.request-edit-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:12px}.btn-secondary-sm{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#334155;font-size:13px;font-weight:600;cursor:pointer}.btn-secondary-sm:hover{background:#f8fafc}\n
+
+/* Shared layout stability fixes */
+.app { min-height: 100vh; height: 100vh; overflow: hidden; }
+.main { min-height: 0; overflow-y: auto; overflow-x: hidden; position: relative; }
+.topbar { position: sticky; top: 0; z-index: 100; flex-shrink: 0; }
+.sidebar { overflow-y: auto; min-height: 0; }
+.nav { gap: 6px; }
+.nav a { display: flex; align-items: center; gap: 12px; min-height: 44px; white-space: nowrap; }
+.nav a i { width: 18px; flex: 0 0 18px; text-align: center; }
+.content { min-width: 0; }
+@media (max-width: 760px) {
+  .app { height: 100dvh; }
+  .sidebar { width: 76px; padding-left: 0; padding-right: 0; }
+  .brand { padding: 0 20px; }
+  .brand-name, .nav a span, .logout-wrap a span { display: none; }
+  .nav a { justify-content: center; padding: 12px 8px; }
+  .nav a i { margin: 0; }
+  .topbar { padding: 12px 16px; min-height: 60px; }
+  .content { padding: 20px 16px; }
+}
+/* Prevent accidental visible escaped newline text and layout overflow */
+body { overflow: hidden; }
