@@ -266,13 +266,22 @@ async function requestPropertyAssignment() {
     }
     button.disabled = true;
     message.textContent = "Sending request...";
-    const result = await window.supabaseClient.from("property_assignment_requests").insert({ property_id: propertyId, tenant_id: currentUser.id });
-    button.disabled = false;
+    const result = await window.supabaseClient.from("property_assignment_requests").insert({ property_id: propertyId, tenant_id: currentUser.id }).select("id").single();
     if (result.error) {
-        message.textContent = result.error.message.includes("duplicate") ? "You already have a pending request for this property." : "Could not send the request: " + result.error.message;
+        button.disabled = false;
+        message.textContent = result.error.message.toLowerCase().includes("duplicate") ? "You already have a pending request for this property." : "Could not send the request: " + result.error.message;
         return;
     }
-    message.textContent = "Request sent. Your manager has been notified.";
+    const property = (await window.supabaseClient.from("properties").select("property_name,unit").eq("id", propertyId).maybeSingle()).data;
+    const managers = await window.supabaseClient.from("profiles").select("id").eq("role", "manager");
+    if (!managers.error && managers.data?.length) {
+        const label = [property?.property_name || "a property", property?.unit ? `Unit ${property.unit}` : ""].filter(Boolean).join(" · ");
+        const notices = managers.data.map(manager => ({ user_id: manager.id, request_id: null, type: "property_assignment", title: "Property assignment request", message: `A tenant requested assignment to ${label}.`, is_read: false }));
+        const noticeResult = await window.supabaseClient.from("notifications").insert(notices);
+        if (noticeResult.error) console.error("Assignment request saved, but manager notification failed:", noticeResult.error.message);
+    }
+    button.disabled = false;
+    message.textContent = "Request sent successfully. Your manager can review it in Properties.";
     await loadUnassignedProperties();
 }
 

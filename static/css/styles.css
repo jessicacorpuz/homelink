@@ -1761,3 +1761,13 @@ input:disabled {
 }
 
 .request-focus{outline:3px solid #60a5fa!important;outline-offset:3px;box-shadow:0 0 0 6px rgba(37,99,235,.10)!important;transition:box-shadow .2s}
+
+/* Keep navigation items stable across pages and prevent mobile tabs from collapsing. */
+.nav { min-width: 0; }
+.nav a { flex-shrink: 0; text-decoration: none; }
+@media (max-width: 900px) {
+  .sidebar { min-width: 0; }
+  .sidebar > div:first-child { min-width: 0; }
+  .nav { min-width: 0; max-width: 100%; }
+  .nav a { flex-shrink: 0; }
+}
