@@ -1,62 +1,217 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<link rel="icon" type="image/svg+xml" href="../static/favicon.svg">
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HomeLink - Properties</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link rel="stylesheet" href="../static/css/styles.css">
-</head>
-<body data-role="manager">
-<div class="app">
-<aside class="sidebar">
-<div>
-<div class="brand"><div class="brand-icon"><i class="fa-solid fa-house"></i></div><span class="brand-name">HomeLink</span></div>
-<nav class="nav">
-<a href="manager_dashboard.html"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a>
-<a href="manager_properties.html" class="active"><i class="fa-solid fa-building"></i> Properties</a>
-<a href="manager_requests.html"><i class="fa-solid fa-screwdriver-wrench"></i> Maintenance Requests</a>
-<a href="manager_contacts.html"><i class="fa-solid fa-address-book"></i> Contacts</a><a href="manager_profile.html"><i class="fa-solid fa-user"></i> Profile</a>
-</nav>
-</div>
-<div class="logout-wrap"><a href="../index.html" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a></div>
-</aside>
-<main class="main">
-<div class="topbar"><div class="bell"><i class="fa-regular fa-bell"></i></div><div class="user"><div class="avatar" id="top-avatar"></div><div class="user-info"><p class="user-name" id="top-name">Loading...</p><p class="user-role" id="top-role">Property Manager</p></div></div></div>
-<section class="content">
-<div class="page-head"><div><h1 class="page-title">Properties</h1><p class="page-sub">Add properties and assign them to tenants.</p></div><button class="btn-primary" id="showAdd"><i class="fa-solid fa-plus"></i> Add Property</button></div>
-<div id="addPanel" class="panel manager-form-panel hidden-panel">
-<h2 class="panel-title">Add New Property</h2>
-<div class="form-row-grid">
-<div class="form-group"><label for="property-name">Property Name</label><input id="property-name" type="text" placeholder="Enter property name" list="propertyNameSuggestions" required><datalist id="propertyNameSuggestions"></datalist></div>
-<div class="form-group"><label for="unit">Unit</label><input id="unit" type="text" placeholder="Enter unit number" required></div>
-</div>
-<div class="form-row-grid">
-<div class="form-group"><label for="address">Address</label><input id="address" type="text" placeholder="Enter property address" list="addressSuggestions" required><datalist id="addressSuggestions"></datalist></div>
-<div class="form-group"><label for="property-type">Property Type</label><select id="property-type"><option value="Apartment">Apartment</option><option value="House">House</option><option value="Condominium">Condominium</option><option value="Townhouse">Townhouse</option><option value="Commercial">Commercial</option></select></div>
-</div>
-<div class="form-row-grid">
-<div class="form-group"><label for="lease-start">Lease Start</label><input id="lease-start" type="date" required></div>
-<div class="form-group"><label for="lease-end">Lease End</label><input id="lease-end" type="date"></div>
-</div>
-<div class="form-group"><label for="tenant">Assign Tenant</label><select id="tenant"><option value="">Unassigned</option></select></div>
-<div class="panel-actions"><button class="btn-secondary" id="cancelAdd">Cancel</button><button class="btn-primary" id="saveProperty">Save Property</button></div>
-</div>
-<div class="panel" id="assignmentRequestsPanel" style="margin-bottom:22px">
-<h2 class="panel-title">Tenant Assignment Requests</h2>
-<p class="page-sub">Review requests for existing unassigned properties.</p>
-<div id="assignmentRequestsList"><p class="small-text">Loading assignment requests...</p></div>
-</div>
-<div id="propertyList" class="property-grid"><div class="loading-card"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading properties...</p></div></div>
-</section>
-</main>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../static/supabase.js"></script><script src="../static/js/notifications.js"></script>
-<script>
-let currentUser=null;
+ <head>
+  <link href="../static/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   HomeLink - Properties
+  </title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+  <link href="../static/css/styles.css" rel="stylesheet"/>
+ </head>
+ <body data-role="manager">
+  <div class="app">
+   <aside class="sidebar">
+    <div>
+     <div class="brand">
+      <div class="brand-icon">
+       <i class="fa-solid fa-house">
+       </i>
+      </div>
+      <span class="brand-name">
+       HomeLink
+      </span>
+     </div>
+     <nav class="nav">
+      <a href="manager_dashboard.html">
+       <i class="fa-solid fa-table-cells-large">
+       </i>
+       Dashboard
+      </a>
+      <a class="active" href="manager_properties.html">
+       <i class="fa-solid fa-building">
+       </i>
+       Properties
+      </a>
+      <a href="manager_requests.html">
+       <i class="fa-solid fa-screwdriver-wrench">
+       </i>
+       Maintenance Requests
+      </a>
+      <a href="manager_contacts.html">
+       <i class="fa-solid fa-address-book">
+       </i>
+       Contacts
+      </a>
+      <a href="manager_profile.html">
+       <i class="fa-solid fa-user">
+       </i>
+       Profile
+      </a>
+     </nav>
+    </div>
+    <div class="logout-wrap">
+     <a href="../index.html" id="logoutBtn">
+      <i class="fa-solid fa-arrow-right-from-bracket">
+      </i>
+      Log Out
+     </a>
+    </div>
+   </aside>
+   <main class="main">
+    <div class="topbar">
+     <div class="bell">
+      <i class="fa-regular fa-bell">
+      </i>
+     </div>
+     <div class="user">
+      <div class="avatar" id="top-avatar">
+      </div>
+      <div class="user-info">
+       <p class="user-name" id="top-name">
+        Loading...
+       </p>
+       <p class="user-role" id="top-role">
+        Property Manager
+       </p>
+      </div>
+     </div>
+    </div>
+    <section class="content">
+     <div class="page-head">
+      <div>
+       <h1 class="page-title">
+        Properties
+       </h1>
+       <p class="page-sub">
+        Add properties and assign them to tenants.
+       </p>
+      </div>
+      <button class="btn-primary" id="showAdd">
+       <i class="fa-solid fa-plus">
+       </i>
+       Add Property
+      </button>
+     </div>
+     <div class="panel manager-form-panel hidden-panel" id="addPanel">
+      <h2 class="panel-title">
+       Add New Property
+      </h2>
+      <div class="form-row-grid">
+       <div class="form-group">
+        <label for="property-name">
+         Property Name
+        </label>
+        <input id="property-name" list="propertyNameSuggestions" placeholder="Enter property name" required="" type="text"/>
+        <datalist id="propertyNameSuggestions">
+        </datalist>
+       </div>
+       <div class="form-group">
+        <label for="unit">
+         Unit
+        </label>
+        <input id="unit" placeholder="Enter unit number" required="" type="text"/>
+       </div>
+      </div>
+      <div class="form-row-grid">
+       <div class="form-group">
+        <label for="address">
+         Address
+        </label>
+        <input id="address" list="addressSuggestions" placeholder="Enter property address" required="" type="text"/>
+        <datalist id="addressSuggestions">
+        </datalist>
+       </div>
+       <div class="form-group">
+        <label for="property-type">
+         Property Type
+        </label>
+        <select id="property-type">
+         <option value="Apartment">
+          Apartment
+         </option>
+         <option value="House">
+          House
+         </option>
+         <option value="Condominium">
+          Condominium
+         </option>
+         <option value="Townhouse">
+          Townhouse
+         </option>
+         <option value="Commercial">
+          Commercial
+         </option>
+        </select>
+       </div>
+      </div>
+      <div class="form-row-grid">
+       <div class="form-group">
+        <label for="lease-start">
+         Lease Start
+        </label>
+        <input id="lease-start" required="" type="date"/>
+       </div>
+       <div class="form-group">
+        <label for="lease-end">
+         Lease End
+        </label>
+        <input id="lease-end" type="date"/>
+       </div>
+      </div>
+      <div class="form-group">
+       <label for="tenant">
+        Assign Tenant
+       </label>
+       <select id="tenant">
+        <option value="">
+         Unassigned
+        </option>
+       </select>
+      </div>
+      <div class="panel-actions">
+       <button class="btn-secondary" id="cancelAdd">
+        Cancel
+       </button>
+       <button class="btn-primary" id="saveProperty">
+        Save Property
+       </button>
+      </div>
+     </div>
+     <div class="panel" id="assignmentRequestsPanel" style="margin-bottom:22px">
+      <h2 class="panel-title">
+       Tenant Assignment Requests
+      </h2>
+      <p class="page-sub">
+       Review requests for existing unassigned properties.
+      </p>
+      <div id="assignmentRequestsList">
+       <p class="small-text">
+        Loading assignment requests...
+       </p>
+      </div>
+     </div>
+     <div class="property-grid" id="propertyList">
+      <div class="loading-card">
+       <i class="fa-solid fa-spinner fa-spin">
+       </i>
+       <p>
+        Loading properties...
+       </p>
+      </div>
+     </div>
+    </section>
+   </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+  </script>
+  <script src="../static/supabase.js">
+  </script>
+  <script src="../static/js/notifications.js">
+  </script>
+  <script>
+   let currentUser=null;
 let tenants=[];
 let propertiesCache=[];
 const esc=value=>String(value??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]));
@@ -144,9 +299,9 @@ document.getElementById("addPanel").classList.add("hidden-panel");document.query
 };
 document.getElementById("logoutBtn").onclick=async e=>{e.preventDefault();await window.supabaseClient.auth.signOut();location.href="../index.html"};
 init();
-</script>
-<script>
-(function(){
+  </script>
+  <script>
+   (function(){
  const role=(document.body.dataset.role||"").toLowerCase();
  const profilePage={tenant:"profile.html",manager:"manager_profile.html",contractor:"contractor_profile.html"}[role];
  const user=document.querySelector(".topbar .user");
@@ -161,7 +316,8 @@ init();
    if(!find()){const observer=new MutationObserver(()=>{if(find())observer.disconnect()});observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),10000)}
  }
 })();
-</script>
-<script src="../static/js/popups.js"></script>
-</body>
+  </script>
+  <script src="../static/js/popups.js">
+  </script>
+ </body>
 </html>

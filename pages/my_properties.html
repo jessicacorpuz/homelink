@@ -1,119 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<link rel="icon" type="image/svg+xml" href="../static/favicon.svg">
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HomeLink - My Properties</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="../static/css/styles.css">
-</head>
-
-<body data-role="tenant">
-
-<div class="app">
-
-    <aside class="sidebar">
-        <div>
-            <div class="brand">
-                <div class="brand-icon">
-                    <i class="fa-solid fa-house"></i>
-                </div>
-                <span class="brand-name">HomeLink</span>
-            </div>
-
-            <nav class="nav">
-                <a href="tenant_dashboard.html">
-                    <i class="fa-solid fa-table-cells-large"></i>
-                    Dashboard
-                </a>
-
-                <a href="my_properties.html" class="active">
-                    <i class="fa-solid fa-building"></i>
-                    My Properties
-                </a>
-
-                <a href="my_requests.html">
-                    <i class="fa-solid fa-screwdriver-wrench"></i>
-                    Maintenance Requests
-                </a>
-
-                <a href="profile.html">
-                    <i class="fa-solid fa-user"></i>
-                    Profile
-                </a>
-            </nav>
-        </div>
-
-        <div class="logout-wrap">
-            <a href="../index.html" id="logoutBtn">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                Log Out
-            </a>
-        </div>
-    </aside>
-
-    <main class="main">
-
-        <div class="topbar">
-            <div class="bell">
-                <i class="fa-regular fa-bell"></i>
-                <span class="dot"></span>
-            </div>
-
-            <div class="user">
-                <div class="avatar" id="profileAvatar"></div>
-
-                <div class="user-info">
-                    <p class="user-name" id="userName">Loading...</p>
-                    <p class="user-role">Tenant</p>
-                </div>
-
-                <i class="fa-solid fa-chevron-down"></i>
-            </div>
-        </div>
-
-        <section class="content">
-
-            <div class="page-head">
-                <div>
-                    <h1 class="page-title">My Properties</h1>
-                    <p class="page-sub">
-                        View the properties assigned to your account.
-                    </p>
-                </div>
-            </div>
-
-            <div class="panel" id="assignmentRequestPanel" style="margin-bottom:22px">
-                <h2 class="panel-title">Request a Property Assignment</h2>
-                <p class="page-sub">Choose an existing unassigned property and send a request to your manager. Your manager must approve it before it is assigned to you.</p>
-                <div class="form-row-grid">
-                    <div class="form-group"><label for="unassignedProperty">Available Property</label><select id="unassignedProperty" required><option value="">Loading unassigned properties...</option></select></div>
-                    <div class="form-group" style="align-self:end"><button type="button" class="btn-primary" id="requestAssignmentBtn"><i class="fa-regular fa-paper-plane"></i> Request Assignment</button></div>
-                </div>
-                <p id="assignmentRequestMessage" class="small-text" aria-live="polite"></p>
-            </div>
-
-            <div id="propertyList" class="property-grid">
-                <div class="loading-card">
-                    <i class="fa-solid fa-spinner fa-spin"></i>
-                    <p>Loading your properties...</p>
-                </div>
-            </div>
-
-        </section>
-
-    </main>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../static/supabase.js"></script><script src="../static/js/notifications.js"></script>
-
-<script>
-
-let currentUser = null;
+ <head>
+  <link href="../static/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   HomeLink - My Properties
+  </title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+  <link href="../static/css/styles.css" rel="stylesheet"/>
+ </head>
+ <body data-role="tenant">
+  <div class="app">
+   <aside class="sidebar">
+    <div>
+     <div class="brand">
+      <div class="brand-icon">
+       <i class="fa-solid fa-house">
+       </i>
+      </div>
+      <span class="brand-name">
+       HomeLink
+      </span>
+     </div>
+     <nav class="nav">
+      <a href="tenant_dashboard.html">
+       <i class="fa-solid fa-table-cells-large">
+       </i>
+       Dashboard
+      </a>
+      <a class="active" href="my_properties.html">
+       <i class="fa-solid fa-building">
+       </i>
+       My Properties
+      </a>
+      <a href="my_requests.html">
+       <i class="fa-solid fa-screwdriver-wrench">
+       </i>
+       Maintenance Requests
+      </a>
+      <a href="tenant_contacts.html">
+       <i class="fa-solid fa-address-book">
+       </i>
+       Contacts
+      </a>
+      <a href="profile.html">
+       <i class="fa-solid fa-user">
+       </i>
+       Profile
+      </a>
+     </nav>
+    </div>
+    <div class="logout-wrap">
+     <a href="../index.html" id="logoutBtn">
+      <i class="fa-solid fa-arrow-right-from-bracket">
+      </i>
+      Log Out
+     </a>
+    </div>
+   </aside>
+   <main class="main">
+    <div class="topbar">
+     <div class="bell">
+      <i class="fa-regular fa-bell">
+      </i>
+      <span class="dot">
+      </span>
+     </div>
+     <div class="user">
+      <div class="avatar" id="profileAvatar">
+      </div>
+      <div class="user-info">
+       <p class="user-name" id="userName">
+        Loading...
+       </p>
+       <p class="user-role">
+        Tenant
+       </p>
+      </div>
+      <i class="fa-solid fa-chevron-down">
+      </i>
+     </div>
+    </div>
+    <section class="content">
+     <div class="page-head">
+      <div>
+       <h1 class="page-title">
+        My Properties
+       </h1>
+       <p class="page-sub">
+        View the properties assigned to your account.
+       </p>
+      </div>
+     </div>
+     <div class="panel" id="assignmentRequestPanel" style="margin-bottom:22px">
+      <h2 class="panel-title">
+       Request a Property Assignment
+      </h2>
+      <p class="page-sub">
+       Choose an existing unassigned property and send a request to your manager. Your manager must approve it before it is assigned to you.
+      </p>
+      <div class="form-row-grid">
+       <div class="form-group">
+        <label for="unassignedProperty">
+         Available Property
+        </label>
+        <select id="unassignedProperty" required="">
+         <option value="">
+          Loading unassigned properties...
+         </option>
+        </select>
+       </div>
+       <div class="form-group" style="align-self:end">
+        <button class="btn-primary" id="requestAssignmentBtn" type="button">
+         <i class="fa-regular fa-paper-plane">
+         </i>
+         Request Assignment
+        </button>
+       </div>
+      </div>
+      <p aria-live="polite" class="small-text" id="assignmentRequestMessage">
+      </p>
+     </div>
+     <div class="property-grid" id="propertyList">
+      <div class="loading-card">
+       <i class="fa-solid fa-spinner fa-spin">
+       </i>
+       <p>
+        Loading your properties...
+       </p>
+      </div>
+     </div>
+    </section>
+   </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+  </script>
+  <script src="../static/supabase.js">
+  </script>
+  <script src="../static/js/notifications.js">
+  </script>
+  <script>
+   let currentUser = null;
 
 document.addEventListener("DOMContentLoaded", initializePage);
 
@@ -475,11 +503,9 @@ document
 
         window.location.href = "../index.html";
     });
-
-</script>
-
-<script>
-(function(){
+  </script>
+  <script>
+   (function(){
  const role=(document.body.dataset.role||"").toLowerCase();
  const profilePage={tenant:"profile.html",manager:"manager_profile.html",contractor:"contractor_profile.html"}[role];
  const user=document.querySelector(".topbar .user");
@@ -494,7 +520,8 @@ document
    if(!find()){const observer=new MutationObserver(()=>{if(find())observer.disconnect()});observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),10000)}
  }
 })();
-</script>
-<script src="../static/js/popups.js"></script>
-</body>
+  </script>
+  <script src="../static/js/popups.js">
+  </script>
+ </body>
 </html>

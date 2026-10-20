@@ -1,22 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<link rel="icon" type="image/svg+xml" href="static/favicon.svg">
-
-<meta charset="UTF-8">
-<title>HomeLink - Signing In</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
-<p style="font-family: sans-serif; text-align: center; margin-top: 20vh;">
-  Signing you in...
-</p>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="static/supabase.js"></script>
-
-<script>
-async function finishGoogleLogin() {
+ <head>
+  <link href="static/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <meta charset="utf-8"/>
+  <title>
+   HomeLink - Signing In
+  </title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+ </head>
+ <body>
+  <p style="font-family: sans-serif; text-align: center; margin-top: 20vh;">
+   Signing you in...
+  </p>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+  </script>
+  <script src="static/supabase.js">
+  </script>
+  <script>
+   async function finishGoogleLogin() {
     const { data, error } =
         await window.supabaseClient.auth.getSession();
 
@@ -72,7 +73,8 @@ async function finishGoogleLogin() {
 }
 
 finishGoogleLogin();
-</script>
-<script src="static/js/popups.js"></script>
-</body>
+  </script>
+  <script src="static/js/popups.js">
+  </script>
+ </body>
 </html>

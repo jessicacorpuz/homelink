@@ -1,142 +1,279 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<link rel="icon" type="image/svg+xml" href="../static/favicon.svg">
-
-<meta charset="UTF-8">
-<title>HomeLink - Report a Maintenance Request</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link rel="stylesheet" href="../static/css/styles.css">
-</head>
-<body data-role="tenant">
-
-<div class="app">
-  <aside class="sidebar">
+ <head>
+  <link href="../static/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <meta charset="utf-8"/>
+  <title>
+   HomeLink - Report a Maintenance Request
+  </title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+  <link href="../static/css/styles.css" rel="stylesheet"/>
+ </head>
+ <body data-role="tenant">
+  <div class="app">
+   <aside class="sidebar">
     <div>
-      <div class="brand">
-        <div class="brand-icon"><i class="fa-solid fa-house"></i></div>
-        <span class="brand-name">HomeLink</span>
+     <div class="brand">
+      <div class="brand-icon">
+       <i class="fa-solid fa-house">
+       </i>
       </div>
-      <nav class="nav">
-        <a href="tenant_dashboard.html"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a>
-        <a href="my_properties.html"><i class="fa-solid fa-building"></i> My Properties</a>
-        <a href="my_requests.html" class="active"><i class="fa-solid fa-screwdriver-wrench"></i> Maintenance Requests</a>
-        <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
-      </nav>
+      <span class="brand-name">
+       HomeLink
+      </span>
+     </div>
+     <nav class="nav">
+      <a href="tenant_dashboard.html">
+       <i class="fa-solid fa-table-cells-large">
+       </i>
+       Dashboard
+      </a>
+      <a href="my_properties.html">
+       <i class="fa-solid fa-building">
+       </i>
+       My Properties
+      </a>
+      <a class="active" href="my_requests.html">
+       <i class="fa-solid fa-screwdriver-wrench">
+       </i>
+       Maintenance Requests
+      </a>
+      <a href="profile.html">
+       <i class="fa-solid fa-user">
+       </i>
+       Profile
+      </a>
+     </nav>
     </div>
     <div class="logout-wrap">
-      <a href="../index.html"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a>
+     <a href="../index.html">
+      <i class="fa-solid fa-arrow-right-from-bracket">
+      </i>
+      Log Out
+     </a>
     </div>
-  </aside>
-
-  <div class="main">
+   </aside>
+   <div class="main">
     <div class="topbar">
-      <div class="bell"><i class="fa-regular fa-bell"></i><span class="dot"></span></div>
-      <div class="user">
-        <div class="avatar" id="top-avatar">AR</div>
-        <div class="user-info">
-          <p class="user-name" id="top-name">Loading...</p>
-          <p class="user-role">Tenant</p>
-        </div>
-        <i class="fa-solid fa-chevron-down"></i>
+     <div class="bell">
+      <i class="fa-regular fa-bell">
+      </i>
+      <span class="dot">
+      </span>
+     </div>
+     <div class="user">
+      <div class="avatar" id="top-avatar">
+       AR
       </div>
+      <div class="user-info">
+       <p class="user-name" id="top-name">
+        Loading...
+       </p>
+       <p class="user-role">
+        Tenant
+       </p>
+      </div>
+      <i class="fa-solid fa-chevron-down">
+      </i>
+     </div>
     </div>
-
     <div class="content">
-      <h1 class="page-title">Report a Maintenance Request</h1>
-      <p class="page-sub">Let us know what's wrong. Add photos or videos if possible.</p>
-
-      <div class="stepper">
-        <div class="step active" data-step="1">
-          <div class="step-circle">1</div>
-          <div class="step-label">Issue Details</div>
-        </div>
-        <div class="step-line"></div>
-        <div class="step" data-step="2">
-          <div class="step-circle">2</div>
-          <div class="step-label">Upload Media</div>
-        </div>
-        <div class="step-line"></div>
-        <div class="step" data-step="3">
-          <div class="step-circle">3</div>
-          <div class="step-label">Review &amp; Submit</div>
-        </div>
+     <h1 class="page-title">
+      Report a Maintenance Request
+     </h1>
+     <p class="page-sub">
+      Let us know what's wrong. Add photos or videos if possible.
+     </p>
+     <div class="stepper">
+      <div class="step active" data-step="1">
+       <div class="step-circle">
+        1
+       </div>
+       <div class="step-label">
+        Issue Details
+       </div>
       </div>
-
-      <form id="request-form" class="panel" action="/api/requests" method="POST" onsubmit="return false;">
-
-        <div class="tab-panel step-panel active" data-step="1">
-          <div class="form-group">
-            <label for="property">Property</label>
-            <select id="property" name="property_id"><option value="">Loading your properties...</option></select>
-          </div>
-          <div class="form-group">
-            <label for="unit">Unit</label>
-            <input type="text" id="unit" name="unit" readonly>
-          </div>
-          <div class="form-group">
-            <label for="issue-type">Issue Type</label>
-            <select id="issue-type" name="issue_type">
-              <option value="" selected disabled>Select an issue type</option>
-              <option>Plumbing</option>
-              <option>HVAC</option>
-              <option>Electrical</option>
-              <option>Other</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="priority">Priority</label>
-            <select id="priority" name="priority"><option>Low</option><option selected>Normal</option><option>High</option><option>Emergency</option></select>
-          </div>
-          <div class="form-group">
-            <label for="title">Title</label>
-            <input type="text" id="title" name="title" placeholder="Title">
-          </div>
-          <div class="form-group">
-            <label for="description">Description</label>
-            <textarea id="description" name="description" rows="3" placeholder="Description"></textarea>
-          </div>
+      <div class="step-line">
+      </div>
+      <div class="step" data-step="2">
+       <div class="step-circle">
+        2
+       </div>
+       <div class="step-label">
+        Upload Media
+       </div>
+      </div>
+      <div class="step-line">
+      </div>
+      <div class="step" data-step="3">
+       <div class="step-circle">
+        3
+       </div>
+       <div class="step-label">
+        Review &amp; Submit
+       </div>
+      </div>
+     </div>
+     <form action="/api/requests" class="panel" id="request-form" method="POST" onsubmit="return false;">
+      <div class="tab-panel step-panel active" data-step="1">
+       <div class="form-group">
+        <label for="property">
+         Property
+        </label>
+        <select id="property" name="property_id">
+         <option value="">
+          Loading your properties...
+         </option>
+        </select>
+       </div>
+       <div class="form-group">
+        <label for="unit">
+         Unit
+        </label>
+        <input id="unit" name="unit" readonly="" type="text"/>
+       </div>
+       <div class="form-group">
+        <label for="issue-type">
+         Issue Type
+        </label>
+        <select id="issue-type" name="issue_type">
+         <option disabled="" selected="" value="">
+          Select an issue type
+         </option>
+         <option>
+          Plumbing
+         </option>
+         <option>
+          HVAC
+         </option>
+         <option>
+          Electrical
+         </option>
+         <option>
+          Other
+         </option>
+        </select>
+       </div>
+       <div class="form-group">
+        <label for="priority">
+         Priority
+        </label>
+        <select id="priority" name="priority">
+         <option>
+          Low
+         </option>
+         <option selected="">
+          Normal
+         </option>
+         <option>
+          High
+         </option>
+         <option>
+          Emergency
+         </option>
+        </select>
+       </div>
+       <div class="form-group">
+        <label for="title">
+         Title
+        </label>
+        <input id="title" name="title" placeholder="Title" type="text"/>
+       </div>
+       <div class="form-group">
+        <label for="description">
+         Description
+        </label>
+        <textarea id="description" name="description" placeholder="Description" rows="3"></textarea>
+       </div>
+      </div>
+      <div class="tab-panel step-panel" data-step="2">
+       <label>
+        Add Photos or Videos (optional)
+       </label>
+       <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+        <input accept="image/*,video/mp4,video/webm,video/quicktime" id="file-input" multiple="" name="attachments" style="display:none" type="file"/>
+        <i class="fa-solid fa-cloud-arrow-up">
+        </i>
+        <p>
+         Drag and drop files here, or click to browse
+        </p>
+        <p class="hint">
+         Supports JPG, PNG, MP4, WEBM, MOV (Max 30MB each)
+        </p>
+        <div id="file-list" style="margin-top:12px;font-size:13px;">
         </div>
-
-        <div class="tab-panel step-panel" data-step="2">
-          <label>Add Photos or Videos (optional)</label>
-          <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
-            <input type="file" name="attachments" multiple accept="image/*,video/mp4,video/webm,video/quicktime" style="display:none" id="file-input">
-            <i class="fa-solid fa-cloud-arrow-up"></i>
-            <p>Drag and drop files here, or click to browse</p>
-            <p class="hint">Supports JPG, PNG, MP4, WEBM, MOV (Max 30MB each)</p><div id="file-list" style="margin-top:12px;font-size:13px;"></div>
-          </div>
-        </div>
-
-        <div class="tab-panel step-panel" data-step="3">
-          <p style="font-size:14px;font-weight:600;color:#1e293b;margin:0 0 8px;">Review your request</p>
-          <div class="review-row"><span>Property</span><span id="review-property"></span></div>
-          <div class="review-row"><span>Unit</span><span id="review-unit"></span></div>
-          <div class="review-row"><span>Issue Type</span><span id="review-issue-type"></span></div>
-          <div class="review-row"><span>Title</span><span id="review-title"></span></div>
-          <div class="review-row" style="border-bottom:none;">
-            <span>Description</span>
-            <span id="review-description" style="max-width:260px;text-align:right;"></span>
-          </div>
-          <div class="review-row"><span>Priority</span><span id="review-priority"></span>
-          </div>
-        </div>
-
-        <div class="panel-actions">
-          <button type="button" id="step-back" class="btn-secondary" onclick="stepBack()">Cancel</button>
-          <button type="button" id="step-next" class="btn-primary" onclick="stepNext()">Next</button>
-        </div>
-      </form>
+       </div>
+      </div>
+      <div class="tab-panel step-panel" data-step="3">
+       <p style="font-size:14px;font-weight:600;color:#1e293b;margin:0 0 8px;">
+        Review your request
+       </p>
+       <div class="review-row">
+        <span>
+         Property
+        </span>
+        <span id="review-property">
+        </span>
+       </div>
+       <div class="review-row">
+        <span>
+         Unit
+        </span>
+        <span id="review-unit">
+        </span>
+       </div>
+       <div class="review-row">
+        <span>
+         Issue Type
+        </span>
+        <span id="review-issue-type">
+        </span>
+       </div>
+       <div class="review-row">
+        <span>
+         Title
+        </span>
+        <span id="review-title">
+        </span>
+       </div>
+       <div class="review-row" style="border-bottom:none;">
+        <span>
+         Description
+        </span>
+        <span id="review-description" style="max-width:260px;text-align:right;">
+        </span>
+       </div>
+       <div class="review-row">
+        <span>
+         Priority
+        </span>
+        <span id="review-priority">
+        </span>
+       </div>
+      </div>
+      <div class="panel-actions">
+       <button class="btn-secondary" id="step-back" onclick="stepBack()" type="button">
+        Cancel
+       </button>
+       <button class="btn-primary" id="step-next" onclick="stepNext()" type="button">
+        Next
+       </button>
+      </div>
+     </form>
     </div>
+   </div>
   </div>
-</div>
-
-<script src="../static/js/app.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../static/supabase.js"></script><script src="../static/js/notifications.js"></script>
-<script>
-let selectedFiles = [];
+  <script src="../static/js/app.js">
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+  </script>
+  <script src="../static/supabase.js">
+  </script>
+  <script src="../static/js/notifications.js">
+  </script>
+  <script>
+   let selectedFiles = [];
 let assignedProperties = [];
 const MAX_FILE_SIZE = 30 * 1024 * 1024;
 
@@ -292,9 +429,9 @@ window.populateReview = function() {
   document.getElementById("review-description").textContent = document.getElementById("description").value || "—";
   document.getElementById("review-priority").textContent = document.getElementById("priority").value || "—";
 };
-</script>
-<script>
-(function(){
+  </script>
+  <script>
+   (function(){
  const role=(document.body.dataset.role||"").toLowerCase();
  const profilePage={tenant:"profile.html",manager:"manager_profile.html",contractor:"contractor_profile.html"}[role];
  const user=document.querySelector(".topbar .user");
@@ -309,7 +446,8 @@ window.populateReview = function() {
    if(!find()){const observer=new MutationObserver(()=>{if(find())observer.disconnect()});observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),10000)}
  }
 })();
-</script>
-<script src="../static/js/popups.js"></script>
-</body>
+  </script>
+  <script src="../static/js/popups.js">
+  </script>
+ </body>
 </html>

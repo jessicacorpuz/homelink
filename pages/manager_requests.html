@@ -1,21 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<link rel="icon" type="image/svg+xml" href="../static/favicon.svg">
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HomeLink - Maintenance Requests</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link rel="stylesheet" href="../static/css/styles.css">
-</head>
-<body data-role="manager">
-<div class="app">
-<aside class="sidebar"><div><div class="brand"><div class="brand-icon"><i class="fa-solid fa-house"></i></div><span class="brand-name">HomeLink</span></div><nav class="nav"><a href="manager_dashboard.html"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a><a href="manager_properties.html"><i class="fa-solid fa-building"></i> Properties</a><a href="manager_requests.html" class="active"><i class="fa-solid fa-screwdriver-wrench"></i> Maintenance Requests</a><a href="manager_contacts.html"><i class="fa-solid fa-address-book"></i> Contacts</a><a href="manager_profile.html"><i class="fa-solid fa-user"></i> Profile</a></nav></div><div class="logout-wrap"><a href="../index.html" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a></div></aside>
-<main class="main"><div class="topbar"><div class="bell"><i class="fa-regular fa-bell"></i></div><div class="user"><div class="avatar" id="top-avatar"></div><div class="user-info"><p class="user-name" id="top-name">Loading...</p><p class="user-role">Property Manager</p></div></div></div>
-<section class="content"><div class="page-title-row"><div><h1 class="page-title">Maintenance Requests</h1><p class="page-sub">Review tenant requests, assign contractors, and follow repair updates.</p></div></div><div class="tabs" id="requestTabs"><button class="tab active" data-status="All">All</button><button class="tab" data-status="Open">Open</button><button class="tab" data-status="Assigned">Assigned</button><button class="tab" data-status="In Progress">In Progress</button><button class="tab" data-status="Completed">Completed</button></div><div id="requestList" class="card-list"><div class="loading-card"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading requests...</p></div></div></section></main></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../static/supabase.js"></script><script src="../static/js/notifications.js"></script><script>
-let requests=[];let contractors=[];let updates=[];
+ <head>
+  <link href="../static/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   HomeLink - Maintenance Requests
+  </title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+  <link href="../static/css/styles.css" rel="stylesheet"/>
+ </head>
+ <body data-role="manager">
+  <div class="app">
+   <aside class="sidebar">
+    <div>
+     <div class="brand">
+      <div class="brand-icon">
+       <i class="fa-solid fa-house">
+       </i>
+      </div>
+      <span class="brand-name">
+       HomeLink
+      </span>
+     </div>
+     <nav class="nav">
+      <a href="manager_dashboard.html">
+       <i class="fa-solid fa-table-cells-large">
+       </i>
+       Dashboard
+      </a>
+      <a href="manager_properties.html">
+       <i class="fa-solid fa-building">
+       </i>
+       Properties
+      </a>
+      <a class="active" href="manager_requests.html">
+       <i class="fa-solid fa-screwdriver-wrench">
+       </i>
+       Maintenance Requests
+      </a>
+      <a href="manager_contacts.html">
+       <i class="fa-solid fa-address-book">
+       </i>
+       Contacts
+      </a>
+      <a href="manager_profile.html">
+       <i class="fa-solid fa-user">
+       </i>
+       Profile
+      </a>
+     </nav>
+    </div>
+    <div class="logout-wrap">
+     <a href="../index.html" id="logoutBtn">
+      <i class="fa-solid fa-arrow-right-from-bracket">
+      </i>
+      Log Out
+     </a>
+    </div>
+   </aside>
+   <main class="main">
+    <div class="topbar">
+     <div class="bell">
+      <i class="fa-regular fa-bell">
+      </i>
+     </div>
+     <div class="user">
+      <div class="avatar" id="top-avatar">
+      </div>
+      <div class="user-info">
+       <p class="user-name" id="top-name">
+        Loading...
+       </p>
+       <p class="user-role">
+        Property Manager
+       </p>
+      </div>
+     </div>
+    </div>
+    <section class="content">
+     <div class="page-title-row">
+      <div>
+       <h1 class="page-title">
+        Maintenance Requests
+       </h1>
+       <p class="page-sub">
+        Review tenant requests, assign contractors, and follow repair updates.
+       </p>
+      </div>
+     </div>
+     <div class="tabs" id="requestTabs">
+      <button class="tab active" data-status="All">
+       All
+      </button>
+      <button class="tab" data-status="Open">
+       Open
+      </button>
+      <button class="tab" data-status="Assigned">
+       Assigned
+      </button>
+      <button class="tab" data-status="In Progress">
+       In Progress
+      </button>
+      <button class="tab" data-status="Completed">
+       Completed
+      </button>
+     </div>
+     <div class="card-list" id="requestList">
+      <div class="loading-card">
+       <i class="fa-solid fa-spinner fa-spin">
+       </i>
+       <p>
+        Loading requests...
+       </p>
+      </div>
+     </div>
+    </section>
+   </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+  </script>
+  <script src="../static/supabase.js">
+  </script>
+  <script src="../static/js/notifications.js">
+  </script>
+  <script>
+   let requests=[];let contractors=[];let updates=[];
 const esc=v=>String(v??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]));
 async function init(){const {data,error}=await window.supabaseClient.auth.getUser();if(error||!data.user){location.href="../index.html";return}const p=await window.supabaseClient.from("profiles").select("full_name,email,role,avatar_url").eq("id",data.user.id).single();if(p.error||String(p.data?.role||"").toLowerCase()!=="manager"){location.href="../index.html";return}document.getElementById("top-name").textContent=p.data.full_name||p.data.email||data.user.email||"Property Manager";document.getElementById("top-avatar").innerHTML=p.data.avatar_url?`<img src="${esc(p.data.avatar_url)}" alt="">`:(p.data.full_name||p.data.email||"PM").split(/\s+/).slice(0,2).map(x=>x[0]).join("").toUpperCase();await loadContractors();await loadRequests();await window.initHomeLinkNotifications()}
 async function loadContractors(){const r=await window.supabaseClient.from("profiles").select("id,full_name,email").eq("role","contractor").order("full_name");if(r.error){alert(r.error.message);return}contractors=r.data||[]}
@@ -27,9 +137,9 @@ async function deleteRequest(id){if(!confirm("Delete this maintenance request? T
 async function assignContractor(id,contractorId){const r=await window.supabaseClient.from("maintenance_requests").update({assigned_contractor_id:contractorId||null,status:contractorId?"Assigned":"Open"}).eq("id",id);if(r.error){alert(r.error.message);return}await loadRequests()}
 async function updateStatus(id,status){const r=await window.supabaseClient.from("maintenance_requests").update({status}).eq("id",id);if(r.error){alert(r.error.message);return}await loadRequests()}
 document.querySelectorAll("#requestTabs .tab").forEach(btn=>btn.onclick=()=>{document.querySelectorAll("#requestTabs .tab").forEach(x=>x.classList.remove("active"));btn.classList.add("active");renderRequests(btn.dataset.status)});document.getElementById("logoutBtn").onclick=async e=>{e.preventDefault();await window.supabaseClient.auth.signOut();location.href="../index.html"};init();
-</script>
-<script>
-(function(){
+  </script>
+  <script>
+   (function(){
  const role=(document.body.dataset.role||"").toLowerCase();
  const profilePage={tenant:"profile.html",manager:"manager_profile.html",contractor:"contractor_profile.html"}[role];
  const user=document.querySelector(".topbar .user");
@@ -44,7 +154,8 @@ document.querySelectorAll("#requestTabs .tab").forEach(btn=>btn.onclick=()=>{doc
    if(!find()){const observer=new MutationObserver(()=>{if(find())observer.disconnect()});observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),10000)}
  }
 })();
-</script>
-<script src="../static/js/popups.js"></script>
-</body>
+  </script>
+  <script src="../static/js/popups.js">
+  </script>
+ </body>
 </html>

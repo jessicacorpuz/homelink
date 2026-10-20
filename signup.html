@@ -1,104 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<link rel="icon" type="image/svg+xml" href="static/favicon.svg">
-
-<meta charset="UTF-8">
-<title>HomeLink - Sign Up</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link rel="stylesheet" href="static/css/styles.css">
-</head>
-<body>
-
-<div class="login-page">
-  <div class="login-hero">
-    <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&q=80" alt="Apartment building">
-    <div class="login-hero-overlay"></div>
-
+ <head>
+  <link href="static/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <meta charset="utf-8"/>
+  <title>
+   HomeLink - Sign Up
+  </title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+  <link href="static/css/styles.css" rel="stylesheet"/>
+ </head>
+ <body>
+  <div class="login-page">
+   <div class="login-hero">
+    <img alt="Apartment building" src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&amp;q=80"/>
+    <div class="login-hero-overlay">
+    </div>
     <div class="login-hero-brand">
-      <div class="brand-icon"><i class="fa-solid fa-house"></i></div>
-      <div>
-        <p>HomeLink</p>
-        <p>Property Management Made Simple</p>
-      </div>
-    </div>
-
-    <div class="login-hero-text">
-      <h1>Join HomeLink.<br>Manage Things Easier.</h1>
-      <p>A faster, easier way for tenants, property managers, and contractors to work together.</p>
-    </div>
-  </div>
-
-  <div class="login-form-side">
-    <div class="login-form">
-      <h2>Create Account</h2>
-      <p class="page-sub">Sign up for your HomeLink account</p>
-
-      <div class="role-tabs">
-        <div class="role-tab active" onclick="selectRole(this, 'tenant')">Tenant</div>
-        <div class="role-tab" onclick="selectRole(this, 'manager')">Manager</div>
-        <div class="role-tab" onclick="selectRole(this, 'contractor')">Contractor</div>
-      </div>
-
-      <form id="signup-form" onsubmit="event.preventDefault(); signUp();">
-        <input type="hidden" id="selected-role" value="tenant">
-
-        <div class="form-group">
-          <label for="full-name">Full name</label>
-          <input type="text" id="full-name" placeholder="Your full name" required>
-        </div>
-
-        <div class="form-group">
-          <label for="email">Email address</label>
-          <input type="email" id="email" placeholder="Enter your email address" required>
-        </div>
-
-        <div class="form-group">
-          <label for="password">Password</label>
-          <div class="password-wrap">
-            <input type="password" id="password" placeholder="Create a password" required minlength="6">
-            <button type="button" onclick="togglePassword(this)">
-              <i class="fa-regular fa-eye"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="confirm-password">Confirm password</label>
-          <div class="password-wrap">
-            <input type="password" id="confirm-password" placeholder="Confirm your password" required minlength="6">
-            <button type="button" onclick="togglePassword(this)">
-              <i class="fa-regular fa-eye"></i>
-            </button>
-          </div>
-        </div>
-
-        <button type="submit" class="btn-primary btn-block" id="sign-up-button">
-          Create account
-        </button>
-      </form>
-
-      <div class="divider">or continue with</div>
-
-      <button type="button" class="btn-social" onclick="signUpWithGoogle()">
-        <i class="fa-brands fa-google"></i> Continue with Google
-      </button>
-
-      <p class="signup-line">
-        Already have an account?
-        <a href="index.html">Sign in</a>
+     <div class="brand-icon">
+      <i class="fa-solid fa-house">
+      </i>
+     </div>
+     <div>
+      <p>
+       HomeLink
       </p>
+      <p>
+       Property Management Made Simple
+      </p>
+     </div>
     </div>
+    <div class="login-hero-text">
+     <h1>
+      Join HomeLink.
+      <br/>
+      Manage Things Easier.
+     </h1>
+     <p>
+      A faster, easier way for tenants, property managers, and contractors to work together.
+     </p>
+    </div>
+   </div>
+   <div class="login-form-side">
+    <div class="login-form">
+     <h2>
+      Create Account
+     </h2>
+     <p class="page-sub">
+      Sign up for your HomeLink account
+     </p>
+     <div class="role-tabs">
+      <div class="role-tab active" onclick="selectRole(this, 'tenant')">
+       Tenant
+      </div>
+      <div class="role-tab" onclick="selectRole(this, 'manager')">
+       Manager
+      </div>
+      <div class="role-tab" onclick="selectRole(this, 'contractor')">
+       Contractor
+      </div>
+     </div>
+     <form id="signup-form" onsubmit="event.preventDefault(); signUp();">
+      <input id="selected-role" type="hidden" value="tenant"/>
+      <div class="form-group">
+       <label for="full-name">
+        Full name
+       </label>
+       <input id="full-name" placeholder="Your full name" required="" type="text"/>
+      </div>
+      <div class="form-group">
+       <label for="email">
+        Email address
+       </label>
+       <input id="email" placeholder="Enter your email address" required="" type="email"/>
+      </div>
+      <div class="form-group">
+       <label for="password">
+        Password
+       </label>
+       <div class="password-wrap">
+        <input id="password" minlength="6" placeholder="Create a password" required="" type="password"/>
+        <button onclick="togglePassword(this)" type="button">
+         <i class="fa-regular fa-eye">
+         </i>
+        </button>
+       </div>
+      </div>
+      <div class="form-group">
+       <label for="confirm-password">
+        Confirm password
+       </label>
+       <div class="password-wrap">
+        <input id="confirm-password" minlength="6" placeholder="Confirm your password" required="" type="password"/>
+        <button onclick="togglePassword(this)" type="button">
+         <i class="fa-regular fa-eye">
+         </i>
+        </button>
+       </div>
+      </div>
+      <button class="btn-primary btn-block" id="sign-up-button" type="submit">
+       Create account
+      </button>
+     </form>
+     <div class="divider">
+      or continue with
+     </div>
+     <button class="btn-social" onclick="signUpWithGoogle()" type="button">
+      <i class="fa-brands fa-google">
+      </i>
+      Continue with Google
+     </button>
+     <p class="signup-line">
+      Already have an account?
+      <a href="index.html">
+       Sign in
+      </a>
+     </p>
+    </div>
+   </div>
   </div>
-</div>
-
-<script src="static/js/app.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="static/supabase.js"></script>
-
-<script>
-function selectRole(element, role) {
+  <script src="static/js/app.js">
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+  </script>
+  <script src="static/supabase.js">
+  </script>
+  <script>
+   function selectRole(element, role) {
     document.querySelectorAll(".role-tab").forEach(tab => {
         tab.classList.remove("active");
     });
@@ -205,8 +233,8 @@ function redirectByRole(role) {
         window.location.href = "index.html";
     }
 }
-</script>
-
-<script src="static/js/popups.js"></script>
-</body>
+  </script>
+  <script src="static/js/popups.js">
+  </script>
+ </body>
 </html>

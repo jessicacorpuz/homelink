@@ -1,21 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<link rel="icon" type="image/svg+xml" href="../static/favicon.svg">
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HomeLink - Assigned Jobs</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link rel="stylesheet" href="../static/css/styles.css">
-</head>
-<body data-role="contractor">
-<div class="app">
-<aside class="sidebar"><div><div class="brand"><div class="brand-icon"><i class="fa-solid fa-house"></i></div><span class="brand-name">HomeLink</span></div><nav class="nav"><a href="contractor_properties.html"><i class="fa-solid fa-building"></i> Properties</a><a href="contractor_view.html" class="active"><i class="fa-solid fa-screwdriver-wrench"></i> Assigned Jobs</a><a href="contractor_contacts.html"><i class="fa-solid fa-address-book"></i> Contacts</a><a href="contractor_profile.html"><i class="fa-solid fa-user"></i> Profile</a></nav></div><div class="logout-wrap"><a href="../index.html" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a></div></aside>
-<main class="main"><div class="topbar"><div class="bell"><i class="fa-regular fa-bell"></i></div><div class="user"><div class="avatar" id="top-avatar"></div><div class="user-info"><p class="user-name" id="top-name">Loading...</p><p class="user-role">Contractor</p></div></div></div>
-<section class="content"><h1 class="page-title">My Assigned Jobs</h1><p class="page-sub">View jobs assigned by the property manager and send repair updates.</p><div class="tabs" id="jobTabs"><button class="tab active" data-status="Active">Active</button><button class="tab" data-status="Completed">Completed</button></div><div id="managerContact" class="panel manager-contact-panel" style="max-width:none;margin-top:20px;display:none"></div><div id="jobList" class="job-grid"><div class="loading-card"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading jobs...</p></div></div></section></main></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../static/supabase.js"></script><script src="../static/js/notifications.js"></script><script>
-let currentUser=null;let jobs=[];let updates=[];
+ <head>
+  <link href="../static/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   HomeLink - Assigned Jobs
+  </title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+  <link href="../static/css/styles.css" rel="stylesheet"/>
+ </head>
+ <body data-role="contractor">
+  <div class="app">
+   <aside class="sidebar">
+    <div>
+     <div class="brand">
+      <div class="brand-icon">
+       <i class="fa-solid fa-house">
+       </i>
+      </div>
+      <span class="brand-name">
+       HomeLink
+      </span>
+     </div>
+     <nav class="nav">
+      <a href="contractor_properties.html">
+       <i class="fa-solid fa-building">
+       </i>
+       Properties
+      </a>
+      <a class="active" href="contractor_view.html">
+       <i class="fa-solid fa-screwdriver-wrench">
+       </i>
+       Assigned Jobs
+      </a>
+      <a href="contractor_contacts.html">
+       <i class="fa-solid fa-address-book">
+       </i>
+       Contacts
+      </a>
+      <a href="contractor_profile.html">
+       <i class="fa-solid fa-user">
+       </i>
+       Profile
+      </a>
+     </nav>
+    </div>
+    <div class="logout-wrap">
+     <a href="../index.html" id="logoutBtn">
+      <i class="fa-solid fa-arrow-right-from-bracket">
+      </i>
+      Log Out
+     </a>
+    </div>
+   </aside>
+   <main class="main">
+    <div class="topbar">
+     <div class="bell">
+      <i class="fa-regular fa-bell">
+      </i>
+     </div>
+     <div class="user">
+      <div class="avatar" id="top-avatar">
+      </div>
+      <div class="user-info">
+       <p class="user-name" id="top-name">
+        Loading...
+       </p>
+       <p class="user-role">
+        Contractor
+       </p>
+      </div>
+     </div>
+    </div>
+    <section class="content">
+     <h1 class="page-title">
+      My Assigned Jobs
+     </h1>
+     <p class="page-sub">
+      View jobs assigned by the property manager and send repair updates.
+     </p>
+     <div class="tabs" id="jobTabs">
+      <button class="tab active" data-status="Active">
+       Active
+      </button>
+      <button class="tab" data-status="Completed">
+       Completed
+      </button>
+     </div>
+     <div class="panel manager-contact-panel" id="managerContact" style="max-width:none;margin-top:20px;display:none">
+     </div>
+     <div class="job-grid" id="jobList">
+      <div class="loading-card">
+       <i class="fa-solid fa-spinner fa-spin">
+       </i>
+       <p>
+        Loading jobs...
+       </p>
+      </div>
+     </div>
+    </section>
+   </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+  </script>
+  <script src="../static/supabase.js">
+  </script>
+  <script src="../static/js/notifications.js">
+  </script>
+  <script>
+   let currentUser=null;let jobs=[];let updates=[];
 const esc=v=>String(v??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]));
 const initials=name=>(name||"Contractor").trim().split(/\s+/).slice(0,2).map(x=>x[0]).join("").toUpperCase()||"C";
 async function init(){const {data,error}=await window.supabaseClient.auth.getUser();if(error||!data.user){location.href="../index.html";return}currentUser=data.user;const p=await window.supabaseClient.from("profiles").select("full_name,email,role,avatar_url,phone").eq("id",currentUser.id).single();if(p.error||String(p.data?.role||"").toLowerCase()!=="contractor"){location.href="../index.html";return}const name=p.data.full_name||p.data.email||currentUser.email||"Contractor";document.getElementById("top-name").textContent=name;document.getElementById("top-avatar").innerHTML=p.data.avatar_url?`<img src="${esc(p.data.avatar_url)}" alt="">`:esc(initials(name));await loadJobs();await loadManagerContact();await window.initHomeLinkNotifications()}
@@ -29,9 +123,9 @@ function showUpdatePopup(title,message){let modal=document.getElementById("updat
 async function submitUpdate(event,id){event.preventDefault();const form=event.currentTarget;const text=form.elements.update_text.value.trim();if(!text)return;const button=form.querySelector("button[type=submit]");button.disabled=true;button.textContent="Posting...";try{const check=await window.supabaseClient.from("maintenance_requests").select("id,assigned_contractor_id").eq("id",id).eq("assigned_contractor_id",currentUser.id).maybeSingle();if(check.error)throw check.error;if(!check.data)throw new Error("This job is no longer assigned to your contractor account.");const r=await window.supabaseClient.from("repair_updates").insert({request_id:Number(id),contractor_id:currentUser.id,update_text:text,status:"In Progress"});if(r.error)throw r.error;const status=await window.supabaseClient.from("maintenance_requests").update({status:"In Progress"}).eq("id",id).eq("assigned_contractor_id",currentUser.id);if(status.error)throw status.error;form.reset();showUpdatePopup("Update posted","Your repair progress update has been sent to the tenant and manager.");await loadJobs()}catch(error){console.error(error);alert("Could not post the update: " + error.message)}finally{button.disabled=false;button.textContent="Post Update"}}
 async function completeJob(id){if(!confirm("Mark this job as completed?"))return;const text=prompt("Add a final repair update for the tenant and manager:","");if(!text||!text.trim())return;try{const check=await window.supabaseClient.from("maintenance_requests").select("id,assigned_contractor_id").eq("id",id).eq("assigned_contractor_id",currentUser.id).maybeSingle();if(check.error)throw check.error;if(!check.data)throw new Error("This job is no longer assigned to your contractor account.");const update=await window.supabaseClient.from("repair_updates").insert({request_id:Number(id),contractor_id:currentUser.id,update_text:text.trim(),status:"Completed"});if(update.error)throw update.error;const r=await window.supabaseClient.from("maintenance_requests").update({status:"Completed"}).eq("id",id).eq("assigned_contractor_id",currentUser.id);if(r.error)throw r.error;showUpdatePopup("Final update submitted","The job has been marked completed and the final update has been sent.");await loadJobs()}catch(error){console.error(error);alert("Could not complete the job: " + error.message)}}
 document.querySelectorAll("#jobTabs .tab").forEach(btn=>btn.onclick=()=>{document.querySelectorAll("#jobTabs .tab").forEach(x=>x.classList.remove("active"));btn.classList.add("active");renderJobs(btn.dataset.status)});document.getElementById("logoutBtn").onclick=async e=>{e.preventDefault();await window.supabaseClient.auth.signOut();location.href="../index.html"};init();
-</script>
-<script>
-(function(){
+  </script>
+  <script>
+   (function(){
  const role=(document.body.dataset.role||"").toLowerCase();
  const profilePage={tenant:"profile.html",manager:"manager_profile.html",contractor:"contractor_profile.html"}[role];
  const user=document.querySelector(".topbar .user");
@@ -46,7 +140,8 @@ document.querySelectorAll("#jobTabs .tab").forEach(btn=>btn.onclick=()=>{documen
    if(!find()){const observer=new MutationObserver(()=>{if(find())observer.disconnect()});observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),10000)}
  }
 })();
-</script>
-<script src="../static/js/popups.js"></script>
-</body>
+  </script>
+  <script src="../static/js/popups.js">
+  </script>
+ </body>
 </html>
