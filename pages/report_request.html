@@ -272,8 +272,8 @@ async function submitRequest() {
       const meta = await window.supabaseClient.from("maintenance_media").insert({ request_id:requestId, uploaded_by:session.user.id, file_path:path, file_name:file.name, file_type:file.type });
       if (meta.error) throw meta.error;
     }
-    alert("Maintenance request submitted successfully!");
-    window.location.href = "my_requests.html";
+    if(window.showHomeLinkPopup) window.showHomeLinkPopup("Your maintenance request has been submitted successfully.","Request submitted","success"); else alert("Maintenance request submitted successfully!");
+    setTimeout(() => { window.location.href = "my_requests.html"; }, 1100);
   } catch (err) { console.error(err); alert("Could not submit the request: " + err.message); }
   finally { button.disabled=false; button.textContent="Submit Request"; }
 }
@@ -310,5 +310,5 @@ window.populateReview = function() {
  }
 })();
 </script>
-</body>
+<script src="../static/js/popups.js"></script>\n</body>
 </html>

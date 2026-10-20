@@ -113,14 +113,26 @@
     if (row.type === "property_assignment_request" && row.request_id) {
       return "manager_properties.html?assignment_request=" + encodeURIComponent(row.request_id);
     }
+    const role = String(document.body.dataset.role || "").toLowerCase();
+    const kind = String(row.type || "").toLowerCase();
+    const message = String(row.title || "") + " " + String(row.message || "");
+    if ((kind.includes("assignment") || /property assignment/i.test(message)) && role === "manager") {
+      return "manager_properties.html" + (row.request_id ? "?assignment_request=" + encodeURIComponent(row.request_id) : "");
+    }
+    if ((kind.includes("property") || /property assigned|property assignment/i.test(message)) && role === "tenant") {
+      return "my_properties.html";
+    }
     if (TYPE_PAGES[row.type]) {
       const role = document.body.dataset.role || "";
       if (role === "manager") return "manager_properties.html";
       if (role === "contractor") return "contractor_properties.html";
       return TYPE_PAGES[row.type];
     }
-    if (!row.request_id) return "";
-    const page = ROLE_PAGES[document.body.dataset.role || ""] || "";
+    const page = ROLE_PAGES[role || document.body.dataset.role || ""] || "";
+    if (!row.request_id) {
+      if (page && /maintenance|repair|contractor|completed|request/i.test(message)) return page;
+      return "";
+    }
     if (!page) return "";
     return page + "?request=" + encodeURIComponent(row.request_id);
   }

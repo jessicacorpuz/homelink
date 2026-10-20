@@ -11,7 +11,7 @@
 </head>
 <body data-role="manager">
 <div class="app">
-<aside class="sidebar"><div><div class="brand"><div class="brand-icon"><i class="fa-solid fa-house"></i></div><span class="brand-name">HomeLink</span></div><nav class="nav"><a href="manager_dashboard.html"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a><a href="manager_properties.html"><i class="fa-solid fa-building"></i> Properties</a><a href="manager_requests.html" class="active"><i class="fa-solid fa-screwdriver-wrench"></i> Maintenance Requests</a><a href="manager_contractors.html"><i class="fa-solid fa-users"></i> Contractors</a><a href="manager_contacts.html"><i class="fa-solid fa-address-book"></i> Contacts</a><a href="manager_profile.html"><i class="fa-solid fa-user"></i> Profile</a></nav></div><div class="logout-wrap"><a href="../index.html" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a></div></aside>
+<aside class="sidebar"><div><div class="brand"><div class="brand-icon"><i class="fa-solid fa-house"></i></div><span class="brand-name">HomeLink</span></div><nav class="nav"><a href="manager_dashboard.html"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a><a href="manager_properties.html"><i class="fa-solid fa-building"></i> Properties</a><a href="manager_requests.html" class="active"><i class="fa-solid fa-screwdriver-wrench"></i> Maintenance Requests</a><a href="manager_contacts.html"><i class="fa-solid fa-address-book"></i> Contacts</a><a href="manager_profile.html"><i class="fa-solid fa-user"></i> Profile</a></nav></div><div class="logout-wrap"><a href="../index.html" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a></div></aside>
 <main class="main"><div class="topbar"><div class="bell"><i class="fa-regular fa-bell"></i></div><div class="user"><div class="avatar" id="top-avatar"></div><div class="user-info"><p class="user-name" id="top-name">Loading...</p><p class="user-role">Property Manager</p></div></div></div>
 <section class="content"><div class="page-title-row"><div><h1 class="page-title">Maintenance Requests</h1><p class="page-sub">Review tenant requests, assign contractors, and follow repair updates.</p></div></div><div class="tabs" id="requestTabs"><button class="tab active" data-status="All">All</button><button class="tab" data-status="Open">Open</button><button class="tab" data-status="Assigned">Assigned</button><button class="tab" data-status="In Progress">In Progress</button><button class="tab" data-status="Completed">Completed</button></div><div id="requestList" class="card-list"><div class="loading-card"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading requests...</p></div></div></section></main></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../static/supabase.js"></script><script src="../static/js/notifications.js"></script><script>
@@ -45,5 +45,5 @@ document.querySelectorAll("#requestTabs .tab").forEach(btn=>btn.onclick=()=>{doc
  }
 })();
 </script>
-</body>
+<script src="../static/js/popups.js"></script>\n</body>
 </html>
