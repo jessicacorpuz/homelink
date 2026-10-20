@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" type="image/svg+xml" href="../static/favicon.svg">
+
 <meta charset="UTF-8">
 <title>HomeLink - Maintenance Request #1024</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,7 +18,7 @@
         <div class="brand-icon"><i class="fa-solid fa-house"></i></div>
         <span class="brand-name">HomeLink</span>
       </div>
-      <nav class="nav"><a href="manager_dashboard.html"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a><a href="manager_properties.html"><i class="fa-solid fa-building"></i> Properties</a><a href="manager_requests.html"><i class="fa-solid fa-screwdriver-wrench"></i> Maintenance Requests</a><a href="manager_contractors.html"><i class="fa-solid fa-users"></i> Contractors</a><a href="manager_profile.html"><i class="fa-solid fa-user"></i> Profile</a></nav>
+      <nav class="nav"><a href="manager_dashboard.html"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a><a href="manager_properties.html"><i class="fa-solid fa-building"></i> Properties</a><a href="manager_requests.html"><i class="fa-solid fa-screwdriver-wrench"></i> Maintenance Requests</a><a href="manager_contractors.html"><i class="fa-solid fa-users"></i> Contractors</a><a href="manager_contacts.html"><i class="fa-solid fa-address-book"></i> Contacts</a><a href="manager_profile.html"><i class="fa-solid fa-user"></i> Profile</a></nav>
     </div>
     <div class="logout-wrap">
       <a href="../index.html"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a>
@@ -109,5 +111,22 @@
 </div>
 
 <script src="../static/js/app.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../static/supabase.js"></script><script src="../static/js/notifications.js"></script><script>window.initHomeLinkNotifications();</script>
+<script>
+(function(){
+ const role=(document.body.dataset.role||"").toLowerCase();
+ const profilePage={tenant:"profile.html",manager:"manager_profile.html",contractor:"contractor_profile.html"}[role];
+ const user=document.querySelector(".topbar .user");
+ if(user&&profilePage&&!user.closest("a")){
+   user.classList.add("profile-link");user.setAttribute("role","link");user.setAttribute("tabindex","0");user.setAttribute("aria-label","Open profile");
+   const go=()=>location.href=profilePage;
+   user.addEventListener("click",go);user.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}});
+ }
+ const target=new URLSearchParams(location.search).get("request");
+ if(target){
+   const find=()=>{const card=document.querySelector('[data-request-id="'+CSS.escape(target)+'"]');if(card){card.classList.add("request-focus");card.scrollIntoView({behavior:"smooth",block:"center"});return true}return false};
+   if(!find()){const observer=new MutationObserver(()=>{if(find())observer.disconnect()});observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),10000)}
+ }
+})();
+</script>
 </body>
 </html>

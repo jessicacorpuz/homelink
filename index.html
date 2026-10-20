@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" type="image/svg+xml" href="static/favicon.svg">
+
 <meta charset="UTF-8">
 <title>HomeLink - Sign In</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,7 +44,7 @@
 
         <div class="form-group">
           <label for="email">Email address</label>
-          <input type="email" id="email" name="email" placeholder="you@example.com" required>
+          <input type="email" id="email" name="email" placeholder="Enter your email address" required>
         </div>
 
         <div class="form-group">
@@ -132,11 +134,7 @@ async function signIn() {
 
         if (profile.role !== selectedRole) {
             await window.supabaseClient.auth.signOut();
-            alert(
-                "This account is registered as a " +
-                profile.role +
-                ". Please select the correct role."
-            );
+            showRolePopup(profile.role);
             return;
         }
 
@@ -158,6 +156,21 @@ async function signIn() {
         button.disabled = false;
         button.textContent = "Sign in";
     }
+}
+
+
+function showRolePopup(actualRole) {
+    let modal = document.getElementById("roleMismatchPopup");
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "roleMismatchPopup";
+        modal.className = "app-modal-backdrop";
+        modal.innerHTML = '<div class="app-modal" role="dialog" aria-modal="true" aria-labelledby="rolePopupTitle"><div class="app-modal-icon warning"><i class="fa-solid fa-user-shield"></i></div><h2 id="rolePopupTitle">Incorrect account role</h2><p id="rolePopupMessage"></p><button type="button" class="btn-primary" id="rolePopupOkay">Choose correct role</button></div>';
+        document.body.appendChild(modal);
+        document.getElementById("rolePopupOkay").onclick = () => modal.remove();
+    }
+    document.getElementById("rolePopupMessage").textContent = "This account is registered as a " + actualRole + ". Select that role before signing in.";
+    modal.classList.add("open");
 }
 
 async function signInWithGoogle() {

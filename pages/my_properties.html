@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" type="image/svg+xml" href="../static/favicon.svg">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HomeLink - My Properties</title>
@@ -83,6 +85,16 @@
                 </div>
             </div>
 
+            <div class="panel" id="assignmentRequestPanel" style="margin-bottom:22px">
+                <h2 class="panel-title">Request a Property Assignment</h2>
+                <p class="page-sub">Choose an existing unassigned property and send a request to your manager. Your manager must approve it before it is assigned to you.</p>
+                <div class="form-row-grid">
+                    <div class="form-group"><label for="unassignedProperty">Available Property</label><select id="unassignedProperty" required><option value="">Loading unassigned properties...</option></select></div>
+                    <div class="form-group" style="align-self:end"><button type="button" class="btn-primary" id="requestAssignmentBtn"><i class="fa-regular fa-paper-plane"></i> Request Assignment</button></div>
+                </div>
+                <p id="assignmentRequestMessage" class="small-text" aria-live="polite"></p>
+            </div>
+
             <div id="propertyList" class="property-grid">
                 <div class="loading-card">
                     <i class="fa-solid fa-spinner fa-spin"></i>
@@ -125,6 +137,8 @@ async function initializePage() {
 
     await loadProfile();
     await loadProperties();
+    await loadUnassignedProperties();
+    document.getElementById("requestAssignmentBtn").addEventListener("click", requestPropertyAssignment);
     await window.initHomeLinkNotifications();
 }
 
@@ -205,7 +219,7 @@ async function loadProperties() {
                 </p>
 
                 <p class="small-text">
-                    Your property manager can assign a property to you.
+                    You can request an existing unassigned property above. Your manager will be notified.
                 </p>
             </div>
         `;
@@ -215,6 +229,51 @@ async function loadProperties() {
 
     propertyList.innerHTML =
         data.map(createPropertyCard).join("");
+}
+
+
+async function loadUnassignedProperties() {
+    const select = document.getElementById("unassignedProperty");
+    const { data, error } = await window.supabaseClient
+        .from("properties")
+        .select("id,property_name,unit,address")
+        .is("tenant_id", null)
+        .order("property_name", { ascending: true });
+    if (error) {
+        select.innerHTML = '<option value="">Unable to load properties</option>';
+        document.getElementById("assignmentRequestMessage").textContent = error.message;
+        return;
+    }
+    const properties = data || [];
+    select.innerHTML = '<option value="">Select an unassigned property</option>' + properties.map(p => {
+        const label = [p.property_name, p.unit ? `Unit ${p.unit}` : "", p.address].filter(Boolean).join(" · ");
+        return `<option value="${escapeHtml(p.id)}">${escapeHtml(label)}</option>`;
+    }).join("");
+    if (!properties.length) {
+        select.innerHTML = '<option value="">No unassigned properties available</option>';
+        document.getElementById("assignmentRequestMessage").textContent = "There are currently no unassigned properties to request.";
+    }
+}
+
+async function requestPropertyAssignment() {
+    const select = document.getElementById("unassignedProperty");
+    const message = document.getElementById("assignmentRequestMessage");
+    const button = document.getElementById("requestAssignmentBtn");
+    const propertyId = select.value;
+    if (!propertyId) {
+        message.textContent = "Please select an unassigned property first.";
+        return;
+    }
+    button.disabled = true;
+    message.textContent = "Sending request...";
+    const result = await window.supabaseClient.from("property_assignment_requests").insert({ property_id: propertyId, tenant_id: currentUser.id });
+    button.disabled = false;
+    if (result.error) {
+        message.textContent = result.error.message.includes("duplicate") ? "You already have a pending request for this property." : "Could not send the request: " + result.error.message;
+        return;
+    }
+    message.textContent = "Request sent. Your manager has been notified.";
+    await loadUnassignedProperties();
 }
 
 function createPropertyCard(property) {
@@ -410,5 +469,22 @@ document
 
 </script>
 
+<script>
+(function(){
+ const role=(document.body.dataset.role||"").toLowerCase();
+ const profilePage={tenant:"profile.html",manager:"manager_profile.html",contractor:"contractor_profile.html"}[role];
+ const user=document.querySelector(".topbar .user");
+ if(user&&profilePage&&!user.closest("a")){
+   user.classList.add("profile-link");user.setAttribute("role","link");user.setAttribute("tabindex","0");user.setAttribute("aria-label","Open profile");
+   const go=()=>location.href=profilePage;
+   user.addEventListener("click",go);user.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}});
+ }
+ const target=new URLSearchParams(location.search).get("request");
+ if(target){
+   const find=()=>{const card=document.querySelector('[data-request-id="'+CSS.escape(target)+'"]');if(card){card.classList.add("request-focus");card.scrollIntoView({behavior:"smooth",block:"center"});return true}return false};
+   if(!find()){const observer=new MutationObserver(()=>{if(find())observer.disconnect()});observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),10000)}
+ }
+})();
+</script>
 </body>
 </html>

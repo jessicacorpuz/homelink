@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" type="image/svg+xml" href="../static/favicon.svg">
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HomeLink - Properties</title>
@@ -16,7 +18,7 @@
 <a href="manager_dashboard.html"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a>
 <a href="manager_properties.html" class="active"><i class="fa-solid fa-building"></i> Properties</a>
 <a href="manager_requests.html"><i class="fa-solid fa-screwdriver-wrench"></i> Maintenance Requests</a>
-<a href="manager_contractors.html"><i class="fa-solid fa-users"></i> Contractors</a><a href="manager_profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+<a href="manager_contractors.html"><i class="fa-solid fa-users"></i> Contractors</a><a href="manager_contacts.html"><i class="fa-solid fa-address-book"></i> Contacts</a><a href="manager_profile.html"><i class="fa-solid fa-user"></i> Profile</a>
 </nav>
 </div>
 <div class="logout-wrap"><a href="../index.html" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a></div>
@@ -28,19 +30,24 @@
 <div id="addPanel" class="panel manager-form-panel hidden-panel">
 <h2 class="panel-title">Add New Property</h2>
 <div class="form-row-grid">
-<div class="form-group"><label for="property-name">Property Name</label><input id="property-name" type="text" placeholder="Property Name"></div>
-<div class="form-group"><label for="unit">Unit</label><input id="unit" type="text" placeholder="Unit No."></div>
+<div class="form-group"><label for="property-name">Property Name</label><input id="property-name" type="text" placeholder="Enter property name" list="propertyNameSuggestions" required><datalist id="propertyNameSuggestions"></datalist></div>
+<div class="form-group"><label for="unit">Unit</label><input id="unit" type="text" placeholder="Enter unit number" required></div>
 </div>
 <div class="form-row-grid">
-<div class="form-group"><label for="address">Address</label><input id="address" type="text" placeholder="Address"></div>
+<div class="form-group"><label for="address">Address</label><input id="address" type="text" placeholder="Enter property address" list="addressSuggestions" required><datalist id="addressSuggestions"></datalist></div>
 <div class="form-group"><label for="property-type">Property Type</label><select id="property-type"><option value="Apartment">Apartment</option><option value="House">House</option><option value="Condominium">Condominium</option><option value="Townhouse">Townhouse</option><option value="Commercial">Commercial</option></select></div>
 </div>
 <div class="form-row-grid">
-<div class="form-group"><label for="lease-start">Lease Start</label><input id="lease-start" type="date"></div>
+<div class="form-group"><label for="lease-start">Lease Start</label><input id="lease-start" type="date" required></div>
 <div class="form-group"><label for="lease-end">Lease End</label><input id="lease-end" type="date"></div>
 </div>
 <div class="form-group"><label for="tenant">Assign Tenant</label><select id="tenant"><option value="">Unassigned</option></select></div>
 <div class="panel-actions"><button class="btn-secondary" id="cancelAdd">Cancel</button><button class="btn-primary" id="saveProperty">Save Property</button></div>
+</div>
+<div class="panel" id="assignmentRequestsPanel" style="margin-bottom:22px">
+<h2 class="panel-title">Tenant Assignment Requests</h2>
+<p class="page-sub">Review requests for existing unassigned properties.</p>
+<div id="assignmentRequestsList"><p class="small-text">Loading assignment requests...</p></div>
 </div>
 <div id="propertyList" class="property-grid"><div class="loading-card"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading properties...</p></div></div>
 </section>
@@ -51,6 +58,7 @@
 <script>
 let currentUser=null;
 let tenants=[];
+let propertiesCache=[];
 const esc=value=>String(value??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]));
 async function init(){
 const {data,error}=await window.supabaseClient.auth.getUser();
@@ -62,6 +70,7 @@ document.getElementById("top-name").textContent=profile.data.full_name||profile.
 setTopAvatar(profile.data.avatar_url,profile.data.full_name||profile.data.email);
 await loadTenants();
 await loadProperties();
+await loadAssignmentRequests();
 await window.initHomeLinkNotifications();
 }
 function setTopAvatar(url,name){const el=document.getElementById("top-avatar");if(url){el.innerHTML=`<img src="${esc(url)}" alt="">`}else{el.textContent=(name||"PM").split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase()}}
@@ -76,8 +85,47 @@ async function loadProperties(){
 const list=document.getElementById("propertyList");
 const r=await window.supabaseClient.from("properties").select("*").order("created_at",{ascending:false});
 if(r.error){list.innerHTML=`<div class="empty-card"><div class="empty-icon"><i class="fa-solid fa-triangle-exclamation"></i></div><h2>Unable to Load Properties</h2><p>${esc(r.error.message)}</p></div>`;return}
-if(!r.data?.length){list.innerHTML='<div class="empty-card"><div class="empty-icon"><i class="fa-solid fa-building"></i></div><h2>No Properties Yet</h2><p>Add your first property to make it available to tenants.</p></div>';return}
-list.innerHTML=r.data.map(p=>{const tenant=tenants.find(t=>t.id===p.tenant_id);const status=p.status||"Active";return `<article class="property-card"><div class="property-header"><div class="property-icon"><i class="fa-solid fa-building"></i></div><span class="property-status ${status.toLowerCase()==="active"?"status-active":"status-inactive"}">${esc(status)}</span></div><div class="property-body"><h2>${esc(p.property_name)}</h2><p class="property-type">${esc(p.property_type||"Property")}</p><div class="property-details"><div class="detail-row"><i class="fa-solid fa-location-dot"></i><div><span>Address</span><strong>${esc(p.address||"Not provided")}</strong></div></div><div class="detail-row"><i class="fa-solid fa-door-open"></i><div><span>Unit</span><strong>${esc(p.unit||"Not specified")}</strong></div></div><div class="detail-row"><i class="fa-solid fa-user"></i><div><span>Tenant</span><strong>${esc(tenant?.full_name||tenant?.email||"Unassigned")}</strong></div></div></div></div><div class="property-footer"><select class="property-tenant-select" onchange="assignTenant('${p.id}', this.value)"><option value="">Unassigned</option>${tenants.map(t=>`<option value="${t.id}" ${t.id===p.tenant_id?"selected":""}>${esc(t.full_name||t.email||"Tenant")}</option>`).join("")}</select></div></article>`}).join("");
+propertiesCache=r.data||[]; updateSuggestions(); if(!r.data?.length){list.innerHTML='<div class="empty-card"><div class="empty-icon"><i class="fa-solid fa-building"></i></div><h2>No Properties Yet</h2><p>Add your first property to make it available to tenants.</p></div>';return}
+list.innerHTML=r.data.map(p=>{const tenant=tenants.find(t=>t.id===p.tenant_id);const status=p.status||"Active";return `<article class="property-card"><div class="property-header"><div class="property-icon"><i class="fa-solid fa-building"></i></div><span class="property-status ${status.toLowerCase()==="active"?"status-active":"status-inactive"}">${esc(status)}</span></div><div class="property-body"><h2>${esc(p.property_name)}</h2><p class="property-type">${esc(p.property_type||"Property")}</p><div class="property-details"><div class="detail-row"><i class="fa-solid fa-location-dot"></i><div><span>Address</span><strong>${esc(p.address||"Not provided")}</strong></div></div><div class="detail-row"><i class="fa-solid fa-door-open"></i><div><span>Unit</span><strong>${esc(p.unit||"Not specified")}</strong></div></div><div class="detail-row"><i class="fa-solid fa-user"></i><div><span>Tenant</span><strong>${esc(tenant?.full_name||tenant?.email||"Unassigned")}</strong></div></div><div class="detail-row"><i class="fa-regular fa-calendar"></i><div><span>Lease Start</span><strong>${esc(p.lease_start||"Not provided")}</strong></div></div><div class="detail-row"><i class="fa-regular fa-calendar-check"></i><div><span>Lease End</span><strong>${esc(p.lease_end||"Not provided")}</strong></div></div></div></div><div class="property-footer"><select class="property-tenant-select" onchange="assignTenant('${p.id}', this.value)"><option value="">Unassigned</option>${tenants.map(t=>`<option value="${t.id}" ${t.id===p.tenant_id?"selected":""}>${esc(t.full_name||t.email||"Tenant")}</option>`).join("")}</select><button type="button" class="btn-danger-sm" onclick="deleteProperty('${p.id}')"><i class="fa-solid fa-trash"></i> Delete</button></div></article>`}).join("");
+}
+
+async function loadAssignmentRequests(){
+ const box=document.getElementById("assignmentRequestsList");
+ const r=await window.supabaseClient.from("property_assignment_requests").select("id,tenant_id,property_id,status,created_at,tenant:profiles!property_assignment_requests_tenant_id_fkey(full_name,email),property:properties!property_assignment_requests_property_id_fkey(property_name,unit,address,tenant_id)").eq("status","pending").order("created_at",{ascending:false});
+ if(r.error){box.innerHTML=`<p class="small-text">Unable to load requests: ${esc(r.error.message)}. Make sure supabase/property_assignment_requests.sql has been run.</p>`;return}
+ if(!r.data?.length){box.innerHTML='<p class="small-text">There are no pending tenant assignment requests.</p>';return}
+ box.innerHTML='<div class="table-responsive"><table class="data-table"><thead><tr><th>Tenant</th><th>Property</th><th>Requested</th><th>Actions</th></tr></thead><tbody>'+r.data.map(q=>`<tr id="assignment-${esc(q.id)}"><td>${esc(q.tenant?.full_name||q.tenant?.email||"Tenant")}</td><td>${esc(q.property?.property_name||"Property")} · ${esc(q.property?.unit||"No unit")}<br><span class="small-text">${esc(q.property?.address||"Address unavailable")}</span></td><td>${esc(q.created_at?new Date(q.created_at).toLocaleDateString():"")}</td><td><button class="btn-primary" type="button" onclick="reviewAssignment(${JSON.stringify(q.id)},true)">Approve</button> <button class="btn-danger-sm" type="button" onclick="reviewAssignment(${JSON.stringify(q.id)},false)">Decline</button></td></tr>`).join('')+'</tbody></table></div>';
+ const focus=new URLSearchParams(location.search).get('assignment_request');if(focus){const row=document.getElementById('assignment-'+CSS.escape(focus));if(row){row.classList.add('request-focus');row.scrollIntoView({behavior:'smooth',block:'center'});}}
+}
+async function reviewAssignment(id,approve){
+ const {data:request,error:readError}=await window.supabaseClient.from("property_assignment_requests").select("id,tenant_id,property_id,status,properties:property_id(property_name,tenant_id)").eq("id",id).single();
+ if(readError||!request){alert("Could not load this assignment request.");return}
+ if(request.status!=="pending"){alert("This request has already been reviewed.");await loadAssignmentRequests();return}
+ if(approve){
+  if(request.property?.tenant_id){alert("This property is no longer unassigned. Decline this request and ask the tenant to choose another property.");return}
+  const assign=await window.supabaseClient.from("properties").update({tenant_id:request.tenant_id}).eq("id",request.property_id).is("tenant_id",null);
+  if(assign.error){alert("Could not assign property: "+assign.error.message);return}
+  const update=await window.supabaseClient.from("property_assignment_requests").update({status:"approved",reviewed_by:currentUser.id,reviewed_at:new Date().toISOString()}).eq("id",id).eq("status","pending");
+  if(update.error){alert("The property was assigned, but the request status could not be updated: "+update.error.message);return}
+  alert("Property assigned to tenant.");
+ }else{
+  const update=await window.supabaseClient.from("property_assignment_requests").update({status:"declined",reviewed_by:currentUser.id,reviewed_at:new Date().toISOString()}).eq("id",id).eq("status","pending");
+  if(update.error){alert("Could not decline request: "+update.error.message);return}
+ }
+ await loadAssignmentRequests();await loadProperties();
+}
+
+function updateSuggestions(){
+ const names=[...new Set(propertiesCache.map(p=>p.property_name).filter(Boolean))];
+ const addresses=[...new Set(propertiesCache.map(p=>p.address).filter(Boolean))];
+ document.getElementById("propertyNameSuggestions").innerHTML=names.map(v=>`<option value="${esc(v)}"></option>`).join("");
+ document.getElementById("addressSuggestions").innerHTML=addresses.map(v=>`<option value="${esc(v)}"></option>`).join("");
+}
+async function deleteProperty(id){
+ if(!confirm("Delete this property? This cannot be undone."))return;
+ const r=await window.supabaseClient.from("properties").delete().eq("id",id);
+ if(r.error){alert("Could not delete property: "+r.error.message+" If requests or other records reference this property, remove those links first.");return}
+ await loadProperties();
 }
 async function assignTenant(propertyId, tenantId){
 const r=await window.supabaseClient.from("properties").update({tenant_id:tenantId||null}).eq("id",propertyId);
@@ -88,14 +136,31 @@ await loadProperties();
 document.getElementById("showAdd").onclick=()=>document.getElementById("addPanel").classList.remove("hidden-panel");
 document.getElementById("cancelAdd").onclick=()=>document.getElementById("addPanel").classList.add("hidden-panel");
 document.getElementById("saveProperty").onclick=async()=>{
-const button=document.getElementById("saveProperty");const propertyName=document.getElementById("property-name").value.trim();const unit=document.getElementById("unit").value.trim();const address=document.getElementById("address").value.trim();if(!propertyName||!unit||!address){alert("Please complete the property name, unit, and address.");return}
+const button=document.getElementById("saveProperty");const propertyName=document.getElementById("property-name").value.trim();const unit=document.getElementById("unit").value.trim();const address=document.getElementById("address").value.trim();if(!propertyName||!unit||!address||!document.getElementById("lease-start").value){alert("Please complete the property name, unit, address, and lease start date.");return}
 button.disabled=true;button.textContent="Saving...";
-const r=await window.supabaseClient.from("properties").insert({property_name:propertyName,unit,address,property_type:document.getElementById("property-type").value,lease_start:document.getElementById("lease-start").value||null,lease_end:document.getElementById("lease-end").value||null,tenant_id:document.getElementById("tenant").value||null,status:"Active"});
+const r=await window.supabaseClient.from("properties").insert({property_name:propertyName,unit,address,property_type:document.getElementById("property-type").value,lease_start:document.getElementById("lease-start").value,lease_end:document.getElementById("lease-end").value||null,tenant_id:document.getElementById("tenant").value||null,status:"Active"});
 button.disabled=false;button.textContent="Save Property";if(r.error){alert(r.error.message);return}
 document.getElementById("addPanel").classList.add("hidden-panel");document.querySelectorAll("#addPanel input").forEach(i=>i.value="");document.getElementById("tenant").value="";await loadProperties();
 };
 document.getElementById("logoutBtn").onclick=async e=>{e.preventDefault();await window.supabaseClient.auth.signOut();location.href="../index.html"};
 init();
+</script>
+<script>
+(function(){
+ const role=(document.body.dataset.role||"").toLowerCase();
+ const profilePage={tenant:"profile.html",manager:"manager_profile.html",contractor:"contractor_profile.html"}[role];
+ const user=document.querySelector(".topbar .user");
+ if(user&&profilePage&&!user.closest("a")){
+   user.classList.add("profile-link");user.setAttribute("role","link");user.setAttribute("tabindex","0");user.setAttribute("aria-label","Open profile");
+   const go=()=>location.href=profilePage;
+   user.addEventListener("click",go);user.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}});
+ }
+ const target=new URLSearchParams(location.search).get("request");
+ if(target){
+   const find=()=>{const card=document.querySelector('[data-request-id="'+CSS.escape(target)+'"]');if(card){card.classList.add("request-focus");card.scrollIntoView({behavior:"smooth",block:"center"});return true}return false};
+   if(!find()){const observer=new MutationObserver(()=>{if(find())observer.disconnect()});observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),10000)}
+ }
+})();
 </script>
 </body>
 </html>

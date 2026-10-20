@@ -110,9 +110,19 @@
   }
 
   function destinationFor(row) {
-    if (TYPE_PAGES[row.type]) return TYPE_PAGES[row.type];
+    if (row.type === "property_assignment_request" && row.request_id) {
+      return "manager_properties.html?assignment_request=" + encodeURIComponent(row.request_id);
+    }
+    if (TYPE_PAGES[row.type]) {
+      const role = document.body.dataset.role || "";
+      if (role === "manager") return "manager_properties.html";
+      if (role === "contractor") return "contractor_properties.html";
+      return TYPE_PAGES[row.type];
+    }
     if (!row.request_id) return "";
-    return ROLE_PAGES[document.body.dataset.role || ""] || "";
+    const page = ROLE_PAGES[document.body.dataset.role || ""] || "";
+    if (!page) return "";
+    return page + "?request=" + encodeURIComponent(row.request_id);
   }
 
   // The unread badge is a count query, so it stays accurate beyond the 30 rows

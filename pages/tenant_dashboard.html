@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" type="image/svg+xml" href="../static/favicon.svg">
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HomeLink - Tenant Dashboard</title>
@@ -22,6 +24,23 @@ async function loadData(){const [p,r]=await Promise.all([window.supabaseClient.f
 function renderProperties(){const el=document.getElementById("propertyList");if(!properties.length){el.innerHTML='<p class="empty-state">No properties have been assigned to you yet.</p>';return}el.innerHTML=properties.slice(0,3).map(p=>`<article class="property-card"><div class="property-header"><div class="property-icon"><i class="fa-solid fa-building"></i></div><span class="property-status status-active">${esc(p.status||"Active")}</span></div><div class="property-body"><h2>${esc(p.property_name)}</h2><p class="property-type">${esc(p.property_type||"Property")}</p><div class="property-details"><div class="detail-row"><i class="fa-solid fa-location-dot"></i><div><span>Address</span><strong>${esc(p.address||"Not provided")}</strong></div></div><div class="detail-row"><i class="fa-solid fa-door-open"></i><div><span>Unit</span><strong>${esc(p.unit||"Not specified")}</strong></div></div></div></div></article>`).join("")}
 function renderRequests(){const el=document.getElementById("requestList");if(!requests.length){el.innerHTML='<p class="empty-state">No maintenance requests yet.</p>';return}el.innerHTML=requests.slice(0,5).map(r=>`<div class="request-row"><div class="request-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div><div class="request-main"><p class="request-title">${esc(r.title)}</p><p class="request-meta">${esc(r.property_name)} · ${esc(r.unit)} · ${esc(r.priority||"Normal")}</p></div><span class="badge ${r.status==="Completed"?"badge-completed":r.status==="In Progress"?"badge-inprogress":r.status==="Assigned"?"badge-assigned":"badge-open"}">${esc(r.status||"Open")}</span><div class="request-date">${new Date(r.created_at).toLocaleDateString()}</div></div>`).join("")}
 document.getElementById("logoutBtn").onclick=async e=>{e.preventDefault();await window.supabaseClient.auth.signOut();location.href="../index.html"};init();
+</script>
+<script>
+(function(){
+ const role=(document.body.dataset.role||"").toLowerCase();
+ const profilePage={tenant:"profile.html",manager:"manager_profile.html",contractor:"contractor_profile.html"}[role];
+ const user=document.querySelector(".topbar .user");
+ if(user&&profilePage&&!user.closest("a")){
+   user.classList.add("profile-link");user.setAttribute("role","link");user.setAttribute("tabindex","0");user.setAttribute("aria-label","Open profile");
+   const go=()=>location.href=profilePage;
+   user.addEventListener("click",go);user.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}});
+ }
+ const target=new URLSearchParams(location.search).get("request");
+ if(target){
+   const find=()=>{const card=document.querySelector('[data-request-id="'+CSS.escape(target)+'"]');if(card){card.classList.add("request-focus");card.scrollIntoView({behavior:"smooth",block:"center"});return true}return false};
+   if(!find()){const observer=new MutationObserver(()=>{if(find())observer.disconnect()});observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),10000)}
+ }
+})();
 </script>
 </body>
 </html>

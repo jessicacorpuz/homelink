@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" type="image/svg+xml" href="../static/favicon.svg">
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HomeLink - Tenant Profile</title>
@@ -21,6 +23,23 @@ async function init(){const {data,error}=await window.supabaseClient.auth.getUse
 document.getElementById("avatar-input").addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file)return;if(file.size>5*1024*1024){alert("The image must be 5MB or smaller.");return}const path=userId+"/profile-"+Date.now()+"-"+file.name.replace(/[^a-zA-Z0-9._-]/g,"_");const up=await window.supabaseClient.storage.from("profile-avatars").upload(path,file,{upsert:true,contentType:file.type});if(up.error){alert(up.error.message);return}const pub=window.supabaseClient.storage.from("profile-avatars").getPublicUrl(path);avatarUrl=pub.data.publicUrl;renderAvatar()});
 document.getElementById("saveBtn").onclick=async()=>{const button=document.getElementById("saveBtn");button.disabled=true;button.textContent="Saving...";const r=await window.supabaseClient.from("profiles").update({full_name:document.getElementById("full-name").value.trim(),phone:document.getElementById("phone").value.trim(),avatar_url:avatarUrl||null}).eq("id",userId);button.disabled=false;button.textContent="Save changes";if(r.error){alert(r.error.message);return}document.getElementById("top-name").textContent=document.getElementById("full-name").value.trim()||"Tenant";renderAvatar();alert("Profile saved.")};
 document.getElementById("logoutBtn").onclick=async e=>{e.preventDefault();await window.supabaseClient.auth.signOut();location.href="../index.html"};init();
+</script>
+<script>
+(function(){
+ const role=(document.body.dataset.role||"").toLowerCase();
+ const profilePage={tenant:"profile.html",manager:"manager_profile.html",contractor:"contractor_profile.html"}[role];
+ const user=document.querySelector(".topbar .user");
+ if(user&&profilePage&&!user.closest("a")){
+   user.classList.add("profile-link");user.setAttribute("role","link");user.setAttribute("tabindex","0");user.setAttribute("aria-label","Open profile");
+   const go=()=>location.href=profilePage;
+   user.addEventListener("click",go);user.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}});
+ }
+ const target=new URLSearchParams(location.search).get("request");
+ if(target){
+   const find=()=>{const card=document.querySelector('[data-request-id="'+CSS.escape(target)+'"]');if(card){card.classList.add("request-focus");card.scrollIntoView({behavior:"smooth",block:"center"});return true}return false};
+   if(!find()){const observer=new MutationObserver(()=>{if(find())observer.disconnect()});observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),10000)}
+ }
+})();
 </script>
 </body>
 </html>

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" type="image/svg+xml" href="../static/favicon.svg">
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HomeLink - Contractors</title>
@@ -20,6 +22,23 @@ async function init(){const {data,error}=await window.supabaseClient.auth.getUse
 async function load(){const [c,r]=await Promise.all([window.supabaseClient.from("profiles").select("id,full_name,email,avatar_url").eq("role","contractor").order("full_name"),window.supabaseClient.from("maintenance_requests").select("assigned_contractor_id,status")]);if(c.error){document.getElementById("contractorList").innerHTML=`<div class="empty-card"><h2>Unable to load contractors</h2><p>${esc(c.error.message)}</p></div>`;return}contractors=c.data||[];requests=r.data||[];render()}
 function render(){const list=document.getElementById("contractorList");if(!contractors.length){list.innerHTML='<div class="empty-card"><div class="empty-icon"><i class="fa-solid fa-users"></i></div><h2>No Contractors</h2><p>No users have registered with the Contractor role yet.</p></div>';return}list.innerHTML=contractors.map(c=>{const assigned=requests.filter(r=>r.assigned_contractor_id===c.id);const active=assigned.filter(r=>r.status!=="Completed").length;const completed=assigned.filter(r=>r.status==="Completed").length;const name=c.full_name||c.email||"Contractor";return `<article class="contractor-card"><div class="contractor-card-header"><div class="contractor-card-avatar">${c.avatar_url?`<img src="${esc(c.avatar_url)}" alt="">`:esc(initials(name))}</div><div><h3>${esc(name)}</h3><p>${esc(c.email||"")}</p></div></div><div class="contractor-card-stats"><span><strong>${active}</strong>Active jobs</span><span><strong>${completed}</strong>Completed</span></div></article>`}).join("")}
 document.getElementById("logoutBtn").onclick=async e=>{e.preventDefault();await window.supabaseClient.auth.signOut();location.href="../index.html"};init();
+</script>
+<script>
+(function(){
+ const role=(document.body.dataset.role||"").toLowerCase();
+ const profilePage={tenant:"profile.html",manager:"manager_profile.html",contractor:"contractor_profile.html"}[role];
+ const user=document.querySelector(".topbar .user");
+ if(user&&profilePage&&!user.closest("a")){
+   user.classList.add("profile-link");user.setAttribute("role","link");user.setAttribute("tabindex","0");user.setAttribute("aria-label","Open profile");
+   const go=()=>location.href=profilePage;
+   user.addEventListener("click",go);user.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}});
+ }
+ const target=new URLSearchParams(location.search).get("request");
+ if(target){
+   const find=()=>{const card=document.querySelector('[data-request-id="'+CSS.escape(target)+'"]');if(card){card.classList.add("request-focus");card.scrollIntoView({behavior:"smooth",block:"center"});return true}return false};
+   if(!find()){const observer=new MutationObserver(()=>{if(find())observer.disconnect()});observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),10000)}
+ }
+})();
 </script>
 </body>
 </html>
