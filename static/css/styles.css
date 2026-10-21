@@ -1820,38 +1820,40 @@ body { overflow: hidden; }
     top: 0;
     justify-content: flex-end;
     gap: 12px;
-    min-height: 64px;
-    padding: calc(10px + env(safe-area-inset-top)) 16px 12px;
-    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 58%, #2563eb 100%);
-    border-bottom: none;
-    border-radius: 0 0 26px 26px;
-    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.2);
+    min-height: 56px;
+    padding: calc(8px + env(safe-area-inset-top)) 16px 8px;
+    background: rgba(255, 255, 255, 0.94);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #e8eef6;
+    border-radius: 0;
+    box-shadow: none;
   }
   .topbar::before {
     content: "HomeLink";
     margin-right: auto;
-    color: #fff;
-    font-size: 19px;
+    color: #1e293b;
+    font-size: 16px;
     font-weight: 700;
     letter-spacing: 0.2px;
   }
   .bell {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #e0e7ff;
-    background: rgba(255, 255, 255, 0.14);
+    color: #64748b;
+    background: #f1f5f9;
     border: none;
     border-radius: 12px;
   }
-  .bell .dot { top: 8px; right: 9px; box-sizing: content-box; border: 2px solid #1e3a8a; }
-  .avatar { width: 36px; height: 36px; border: 2px solid rgba(255, 255, 255, 0.45); }
-  .user-name { color: #fff; max-width: 110px; font-size: 13px; }
-  .user-role { color: #bfdbfe; font-size: 11px; }
-  .topbar .fa-chevron-down { color: #bfdbfe; }
-  .profile-link:hover { background: rgba(255, 255, 255, 0.1); }
+  .bell .dot { top: 7px; right: 8px; box-sizing: content-box; border: 2px solid #f1f5f9; }
+  .avatar { width: 34px; height: 34px; border: none; }
+  .user-name { color: #1e293b; max-width: 110px; font-size: 13px; }
+  .user-role { color: #94a3b8; font-size: 11px; }
+  .topbar .fa-chevron-down { color: #94a3b8; }
+  .profile-link:hover { background: #f1f5f9; }
 
   .sidebar {
     position: fixed;
