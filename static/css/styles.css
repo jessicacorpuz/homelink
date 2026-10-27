@@ -2439,41 +2439,33 @@ body { overflow: hidden; }
   body { background: #f4f7fb; }
 
   .sidebar {
-    background: #ffffff;
-    color: #475569;
-    border-right: 1px solid #e8eef6;
-    box-shadow: none;
+    background: linear-gradient(180deg, #1e3a5f 0%, #172b4d 100%);
+    color: #c7d6ea;
+    box-shadow: 1px 0 0 rgba(255, 255, 255, 0.05);
   }
   .brand-icon {
     border-radius: 11px;
     background: linear-gradient(135deg, #3b82f6, #2563eb);
-    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.22);
   }
-  .brand-name { color: #1e293b; font-size: 19px; font-weight: 700; letter-spacing: 0.2px; }
+  .brand-name { color: #fff; font-size: 19px; font-weight: 700; letter-spacing: 0.2px; }
   .nav a {
-    position: relative;
     border-radius: 10px;
-    color: #64748b;
+    color: #c7d6ea;
     transition: background 0.15s ease, color 0.15s ease;
   }
-  .nav a:hover { background: #f1f5f9; color: #1e293b; }
-  .nav a.active { background: #eff6ff; color: #2563eb; font-weight: 600; box-shadow: none; }
-  .nav a.active::before {
-    content: "";
-    position: absolute;
-    left: -12px;
-    top: 10px;
-    bottom: 10px;
-    width: 3px;
-    border-radius: 0 3px 3px 0;
-    background: #2563eb;
+  .nav a:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+  .nav a.active {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(37, 99, 235, 0.3);
   }
   .logout-wrap a {
     border-radius: 10px;
-    color: #64748b;
+    color: #b6c6dc;
     transition: background 0.15s ease, color 0.15s ease;
   }
-  .logout-wrap a:hover { background: #fff1f2; color: #e11d48; }
+  .logout-wrap a:hover { background: rgba(244, 63, 94, 0.14); color: #fda4af; }
 
   .main {
     background:
