@@ -74,52 +74,6 @@
           <button class="btn-primary" id="saveBtn">Save changes</button>
         </div>
 
-        <div class="section-header"><h2>Account overview</h2></div>
-        <div class="stats account-tiles">
-          <div class="stat-card"><div class="stat-icon bg-blue"><i class="fa-solid fa-right-to-bracket"></i></div><div><p class="stat-value" id="acctMethod">&mdash;</p><p class="stat-label">Sign-in method</p></div></div>
-          <div class="stat-card"><div class="stat-icon bg-amber"><i class="fa-solid fa-clock"></i></div><div><p class="stat-value" id="acctLastLogin">&mdash;</p><p class="stat-label">Last sign-in</p></div></div>
-          <div class="stat-card"><div class="stat-icon bg-emerald"><i class="fa-solid fa-circle-check"></i></div><div><p class="stat-value" id="acctEmail">&mdash;</p><p class="stat-label">Email status</p></div></div>
-        </div>
-
-        <div class="panel security-panel">
-          <div class="security-info">
-            <h2 class="panel-title">Security</h2>
-            <p class="page-sub">Enter your current password, then choose a new one.</p>
-          </div>
-          <div class="security-body">
-            <p class="security-note" id="googleNote" hidden>You signed in with Google, so your account doesn't have a HomeLink password. Your sign-in is managed by your Google account.</p>
-            <div class="security-form" id="securityForm">
-              <div class="form-group field-full">
-                <label for="current-password">Current password</label>
-                <div class="password-wrap">
-                  <input autocomplete="current-password" id="current-password" placeholder="Enter your current password" type="password"/>
-                  <button onclick="togglePassword(this)" type="button"><i class="fa-regular fa-eye"></i></button>
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="new-password">New password</label>
-                <div class="password-wrap">
-                  <input autocomplete="new-password" id="new-password" placeholder="New password" type="password"/>
-                  <button onclick="togglePassword(this)" type="button"><i class="fa-regular fa-eye"></i></button>
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="confirm-password">Confirm new password</label>
-                <div class="password-wrap">
-                  <input autocomplete="new-password" id="confirm-password" placeholder="Confirm new password" type="password"/>
-                  <button onclick="togglePassword(this)" type="button"><i class="fa-regular fa-eye"></i></button>
-                </div>
-              </div>
-              <ul class="password-rules field-full" id="passwordRules">
-                <li data-rule="length">At least 8 characters</li>
-                <li data-rule="upper">One uppercase letter</li>
-                <li data-rule="number">One number</li>
-                <li data-rule="special">One special symbol (e.g. ! @ # $ %)</li>
-              </ul>
-              <button class="btn-primary" id="passwordBtn" type="button">Update password</button>
-            </div>
-          </div>
-        </div>
       </section>
     </main>
   </div>
@@ -131,22 +85,9 @@ let userId="";let avatarUrl="";
 const esc=v=>String(v??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]));
 const initials=name=>(name||"Tenant").trim().split(/\s+/).slice(0,2).map(x=>x[0]).join("").toUpperCase()||"T";
 function renderAvatar(){const name=document.getElementById("full-name").value||"Tenant";const markup=avatarUrl?`<img src="${esc(avatarUrl)}" alt="Profile photo">`:`<span>${esc(initials(name))}</span>`;document.getElementById("profile-avatar").innerHTML=markup;document.getElementById("top-avatar").innerHTML=markup}
-let currentUser=null;
-function setText(id,value){const el=document.getElementById(id);if(el)el.textContent=value}
-function getProviders(user){const list=[];const meta=user?.app_metadata||{};if(Array.isArray(meta.providers))list.push(...meta.providers);if(meta.provider)list.push(meta.provider);(user?.identities||[]).forEach(i=>{if(i.provider)list.push(i.provider)});return [...new Set(list)]}
-function hasPassword(user){const p=getProviders(user);return p.length===0||p.includes("email")}
-function renderAccount(user){const p=getProviders(user);const google=p.includes("google");const email=p.includes("email")||p.length===0;setText("acctMethod",google&&email?"Email & Google":google?"Google":"Email & password");const last=user.last_sign_in_at?new Date(user.last_sign_in_at):null;setText("acctLastLogin",last&&!isNaN(last.getTime())?last.toLocaleString("en-US",{month:"short",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit"}):"\u2014");setText("acctEmail",user.email_confirmed_at?"Verified":"Not verified")}
-function applySecurityMode(user){if(hasPassword(user))return;document.getElementById("securityForm").hidden=true;document.getElementById("googleNote").hidden=false}
-function passwordChecks(pw){return {length:pw.length>=8,upper:/[A-Z]/.test(pw),number:/[0-9]/.test(pw),special:/[^A-Za-z0-9\s]/.test(pw)}}
-function passwordProblems(pw){const c=passwordChecks(pw);const out=[];if(!c.length)out.push("at least 8 characters");if(!c.upper)out.push("an uppercase letter");if(!c.number)out.push("a number");if(!c.special)out.push("a special symbol");return out}
-function updatePasswordRules(){const c=passwordChecks(document.getElementById("new-password").value);document.querySelectorAll("#passwordRules li").forEach(li=>li.classList.toggle("met",!!c[li.dataset.rule]))}
-function setMemberSince(iso){const el=document.getElementById("member-since");if(!el||!iso)return;const d=new Date(iso);if(!isNaN(d.getTime()))el.textContent=d.toLocaleDateString("en-US",{month:"long",year:"numeric"})}
-function togglePassword(button){const input=button.parentElement.querySelector("input");const show=input.type==="password";input.type=show?"text":"password";const icon=button.querySelector("i");if(icon)icon.className=show?"fa-regular fa-eye-slash":"fa-regular fa-eye"}
-async function init(){const {data,error}=await window.supabaseClient.auth.getUser();if(error||!data.user){location.href="../index.html";return}userId=data.user.id;const p=await window.supabaseClient.from("profiles").select("full_name,email,role,phone,avatar_url").eq("id",userId).single();if(p.error||String(p.data?.role||"").toLowerCase()!=="tenant"){location.href="../index.html";return}document.getElementById("full-name").value=p.data.full_name||"";document.getElementById("email").value=p.data.email||data.user.email||"";document.getElementById("phone").value=p.data.phone||"";avatarUrl=p.data.avatar_url||"";document.getElementById("top-name").textContent=p.data.full_name||p.data.email||data.user.email||"Tenant";renderAvatar();currentUser=data.user;setMemberSince(data.user.created_at);renderAccount(data.user);applySecurityMode(data.user);await window.initHomeLinkNotifications()}
+async function init(){const {data,error}=await window.supabaseClient.auth.getUser();if(error||!data.user){location.href="../index.html";return}userId=data.user.id;const p=await window.supabaseClient.from("profiles").select("full_name,email,role,phone,avatar_url").eq("id",userId).single();if(p.error||String(p.data?.role||"").toLowerCase()!=="tenant"){location.href="../index.html";return}document.getElementById("full-name").value=p.data.full_name||"";document.getElementById("email").value=p.data.email||data.user.email||"";document.getElementById("phone").value=p.data.phone||"";avatarUrl=p.data.avatar_url||"";document.getElementById("top-name").textContent=p.data.full_name||p.data.email||data.user.email||"Tenant";renderAvatar();setMemberSince(data.user.created_at);await window.initHomeLinkNotifications()}
 document.getElementById("avatar-input").addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file)return;if(file.size>5*1024*1024){alert("The image must be 5MB or smaller.");return}const path=userId+"/profile-"+Date.now()+"-"+file.name.replace(/[^a-zA-Z0-9._-]/g,"_");const up=await window.supabaseClient.storage.from("profile-avatars").upload(path,file,{upsert:true,contentType:file.type});if(up.error){alert(up.error.message);return}const pub=window.supabaseClient.storage.from("profile-avatars").getPublicUrl(path);avatarUrl=pub.data.publicUrl;renderAvatar()});
 document.getElementById("saveBtn").onclick=async()=>{const button=document.getElementById("saveBtn");button.disabled=true;button.textContent="Saving...";const r=await window.supabaseClient.from("profiles").update({full_name:document.getElementById("full-name").value.trim(),phone:document.getElementById("phone").value.trim(),avatar_url:avatarUrl||null}).eq("id",userId);button.disabled=false;button.textContent="Save changes";if(r.error){alert(r.error.message);return}document.getElementById("top-name").textContent=document.getElementById("full-name").value.trim()||"Tenant";renderAvatar();alert("Profile saved.")};
-document.getElementById("new-password").addEventListener("input",updatePasswordRules);
-document.getElementById("passwordBtn").onclick=async()=>{const current=document.getElementById("current-password").value;const pw=document.getElementById("new-password").value;const confirmPw=document.getElementById("confirm-password").value;if(!current){alert("Please enter your current password.");return}const problems=passwordProblems(pw);if(problems.length){alert("Your new password is missing: "+problems.join(", ")+".");return}if(pw!==confirmPw){alert("Your new passwords do not match.");return}if(pw===current){alert("Your new password must be different from your current password.");return}const button=document.getElementById("passwordBtn");button.disabled=true;button.textContent="Updating...";try{const check=await window.supabaseClient.auth.signInWithPassword({email:currentUser?.email||document.getElementById("email").value,password:current});if(check.error){alert(String(check.error.message||"").toLowerCase().includes("invalid")?"Your current password is incorrect.":check.error.message);return}const r=await window.supabaseClient.auth.updateUser({password:pw});if(r.error){alert(r.error.message);return}document.getElementById("current-password").value="";document.getElementById("new-password").value="";document.getElementById("confirm-password").value="";updatePasswordRules();alert("Your password has been updated.")}catch(e){console.error(e);alert("Something went wrong while updating your password.")}finally{button.disabled=false;button.textContent="Update password"}};
 document.getElementById("logoutBtn").onclick=async e=>{e.preventDefault();await window.supabaseClient.auth.signOut();location.href="../index.html"};init();
   </script>
   <script>
