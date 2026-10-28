@@ -2754,13 +2754,6 @@ body { overflow: hidden; }
     font-size: 18px;
     font-weight: 700;
   }
-  .profile-panel.role-profile::after {
-    content: "Your email address and role can't be changed here.";
-    grid-column: 1 / -1;
-    margin-top: 18px;
-    color: #94a3b8;
-    font-size: 13px;
-  }
   body[data-role="tenant"] .profile-header::after { content: "Tenant"; }
   body[data-role="manager"] .profile-header::after { content: "Property Manager"; }
   body[data-role="contractor"] .profile-header::after { content: "Contractor"; }
@@ -2892,12 +2885,6 @@ body { overflow: hidden; }
   .profile-avatar { width: 124px; height: 124px; font-size: 40px; }
   .profile-panel > .btn-primary { grid-column: 2; grid-row: 4; }
   .profile-panel.role-profile::before { grid-column: 2 / -1; grid-row: 1; }
-  .profile-panel.role-profile::after {
-    grid-column: 3;
-    grid-row: 4;
-    align-self: center;
-    margin-top: 8px;
-  }
 }
 
 
@@ -2909,79 +2896,15 @@ body { overflow: hidden; }
   font-size: 12px;
 }
 .profile-meta strong { color: #1e293b; font-size: 14px; font-weight: 600; }
-.security-panel { max-width: none; }
-.security-form { display: grid; grid-template-columns: 1fr; }
-.security-form .btn-primary { justify-self: start; }
-.security-panel [hidden] { display: none !important; }
-.security-note {
-  margin: 0;
-  padding: 14px 16px;
-  background: #f5f9ff;
-  border: 1px solid #dbeafe;
-  border-radius: 12px;
-  color: #475569;
-  font-size: 14px;
-  line-height: 1.6;
-}
-.password-rules {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px 18px;
-  margin: 0 0 18px;
-  padding: 0;
-  list-style: none;
-  color: #94a3b8;
-  font-size: 13px;
-}
-.password-rules li { display: flex; align-items: center; transition: color 0.15s ease; }
-.password-rules li::before {
-  content: "";
-  flex: 0 0 8px;
-  height: 8px;
-  margin-right: 8px;
-  border-radius: 50%;
-  background: #cbd5e1;
-  transition: background 0.15s ease;
-}
-.password-rules li.met { color: #059669; }
-.password-rules li.met::before { background: #10b981; }
 
 @media (max-width: 900px) {
   .profile-meta { align-items: center; text-align: center; }
-  .stats.account-tiles { grid-template-columns: 1fr; gap: 10px; }
-  .account-tiles .stat-card { flex-direction: row; align-items: center; gap: 14px; padding: 14px 16px; }
-  .account-tiles .stat-value { font-size: 16px; line-height: 1.3; }
-  .account-tiles .stat-label { margin-top: 2px; font-size: 12px; }
-  .password-rules { grid-template-columns: 1fr; }
-  .security-form .btn-primary { justify-self: stretch; width: 100%; }
 }
 
 @media (min-width: 901px) {
-  .account-tiles .stat-value { font-size: 19px; line-height: 1.3; }
   .profile-meta { padding-left: 24px; border-left: 1px solid rgba(37, 99, 235, 0.2); }
-  .security-panel { margin-top: 24px; }
-  .security-panel .form-group label {
-    margin-bottom: 8px;
-    color: #64748b;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-  .security-panel .form-group input { padding: 12px 14px; border-radius: 12px; }
-  .security-panel .password-wrap input { padding-right: 46px; }
-  .security-panel .btn-primary { padding: 12px 30px; }
 }
 
 @media (min-width: 1280px) {
   .profile-meta { padding-left: 0; border-left: none; align-items: center; text-align: center; }
-  .security-panel {
-    display: grid;
-    grid-template-columns: 300px 1fr;
-    column-gap: 28px;
-    align-items: start;
-  }
-  .security-form { grid-template-columns: 1fr 1fr; column-gap: 24px; }
-  .security-form .field-full { grid-column: 1 / -1; }
-  .security-form .btn-primary { grid-column: 1 / -1; }
 }
