@@ -2729,6 +2729,38 @@ body { overflow: hidden; }
     letter-spacing: 0.02em;
     box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
   }
+  .profile-header::before {
+    content: "\f015";
+    position: absolute;
+    right: -14px;
+    bottom: -26px;
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 150px;
+    line-height: 1;
+    color: rgba(37, 99, 235, 0.08);
+    transform: rotate(-8deg);
+    pointer-events: none;
+  }
+  .profile-header { grid-row: 1; }
+  .profile-panel.role-profile::before {
+    content: "Account details";
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin-bottom: 24px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #eef2f7;
+    color: #1e293b;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .profile-panel.role-profile::after {
+    content: "Your email address and role can't be changed here.";
+    grid-column: 1 / -1;
+    margin-top: 18px;
+    color: #94a3b8;
+    font-size: 13px;
+  }
   body[data-role="tenant"] .profile-header::after { content: "Tenant"; }
   body[data-role="manager"] .profile-header::after { content: "Property Manager"; }
   body[data-role="contractor"] .profile-header::after { content: "Contractor"; }
@@ -2770,6 +2802,7 @@ body { overflow: hidden; }
   .profile-panel > .btn-primary {
     grid-column: 1 / -1;
     justify-self: start;
+    align-self: start;
     margin-top: 8px;
     padding: 12px 30px;
   }
@@ -2836,10 +2869,11 @@ body { overflow: hidden; }
   .profile-panel.role-profile {
     max-width: 1060px;
     grid-template-columns: 300px 1fr 1fr;
+    grid-template-rows: auto auto auto auto 1fr;
   }
   .profile-header {
     grid-column: 1;
-    grid-row: 1 / span 3;
+    grid-row: 1 / -1;
     flex-direction: column;
     justify-content: center;
     gap: 20px;
@@ -2854,5 +2888,12 @@ body { overflow: hidden; }
   .profile-header::after { position: static; margin-top: 2px; }
   .profile-photo-section { align-items: center; }
   .profile-avatar { width: 124px; height: 124px; font-size: 40px; }
-  .profile-panel > .btn-primary { grid-column: 2 / -1; grid-row: 3; }
+  .profile-panel > .btn-primary { grid-column: 2; grid-row: 4; }
+  .profile-panel.role-profile::before { grid-column: 2 / -1; grid-row: 1; }
+  .profile-panel.role-profile::after {
+    grid-column: 3;
+    grid-row: 4;
+    align-self: center;
+    margin-top: 8px;
+  }
 }
