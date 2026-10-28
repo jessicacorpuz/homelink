@@ -1,156 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
- <head>
+<head>
   <link href="../static/favicon.svg" rel="icon" type="image/svg+xml"/>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>
-   HomeLink - Tenant Profile
-  </title>
+  <title>HomeLink - Tenant Profile</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
   <link href="../static/css/styles.css" rel="stylesheet"/>
- </head>
- <body data-role="tenant">
+</head>
+<body data-role="tenant">
   <div class="app">
-   <aside class="sidebar">
-    <div>
-     <div class="brand">
-      <div class="brand-icon">
-       <i class="fa-solid fa-house">
-       </i>
+    <aside class="sidebar">
+      <div>
+        <div class="brand">
+          <div class="brand-icon"><i class="fa-solid fa-house"></i></div>
+          <span class="brand-name">HomeLink</span>
+        </div>
+        <nav class="nav">
+          <a href="tenant_dashboard.html"><i class="fa-solid fa-table-cells-large"></i> Dashboard</a>
+          <a href="my_properties.html"><i class="fa-solid fa-building"></i> My Properties</a>
+          <a href="my_requests.html"><i class="fa-solid fa-screwdriver-wrench"></i> Maintenance Requests</a>
+          <a href="tenant_contacts.html"><i class="fa-solid fa-address-book"></i> Contacts</a>
+          <a class="active" href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+        </nav>
       </div>
-      <span class="brand-name">
-       HomeLink
-      </span>
-     </div>
-     <nav class="nav">
-      <a href="tenant_dashboard.html">
-       <i class="fa-solid fa-table-cells-large">
-       </i>
-       Dashboard
-      </a>
-      <a href="my_properties.html">
-       <i class="fa-solid fa-building">
-       </i>
-       My Properties
-      </a>
-      <a href="my_requests.html">
-       <i class="fa-solid fa-screwdriver-wrench">
-       </i>
-       Maintenance Requests
-      </a>
-      <a href="tenant_contacts.html">
-       <i class="fa-solid fa-address-book">
-       </i>
-       Contacts
-      </a>
-      <a class="active" href="profile.html">
-       <i class="fa-solid fa-user">
-       </i>
-       Profile
-      </a>
-     </nav>
-    </div>
-    <div class="logout-wrap">
-     <a href="../index.html" id="logoutBtn">
-      <i class="fa-solid fa-arrow-right-from-bracket">
-      </i>
-      Log Out
-     </a>
-    </div>
-   </aside>
-   <main class="main">
-    <div class="topbar">
-     <div class="bell">
-      <i class="fa-regular fa-bell">
-      </i>
-     </div>
-     <div class="user">
-      <div class="avatar" id="top-avatar">
+      <div class="logout-wrap">
+        <a href="../index.html" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</a>
       </div>
-      <div class="user-info">
-       <p class="user-name" id="top-name">
-        Loading...
-       </p>
-       <p class="user-role">
-        Tenant
-       </p>
+    </aside>
+    <main class="main">
+      <div class="topbar">
+        <div class="bell"><i class="fa-regular fa-bell"></i></div>
+        <div class="user">
+          <div class="avatar" id="top-avatar"></div>
+          <div class="user-info">
+            <p class="user-name" id="top-name">Loading...</p>
+            <p class="user-role">Tenant</p>
+          </div>
+        </div>
       </div>
-     </div>
-    </div>
-    <section class="content">
-     <h1 class="page-title">
-      My Profile
-     </h1>
-     <p class="page-sub">
-      Keep your HomeLink account information up to date.
-     </p>
-     <div class="profile-panel role-profile">
-      <div class="profile-header">
-       <div class="profile-avatar" id="profile-avatar">
-        <span>
-         T
-        </span>
-       </div>
-       <div class="profile-photo-section">
-        <label class="btn-secondary" for="avatar-input">
-         Change photo
-        </label>
-        <input accept="image/png,image/jpeg,image/jpg" hidden="" id="avatar-input" type="file"/>
-        <p class="hint">
-         JPG or PNG, up to 5MB.
-        </p>
-       </div>
-      </div>
-      <div class="form-group">
-       <label for="full-name">
-        Full name
-       </label>
-       <input id="full-name" type="text"/>
-      </div>
-      <div class="form-group">
-       <label for="email">
-        Email address
-       </label>
-       <input disabled="" id="email" type="email"/>
-      </div>
-      <div class="form-group">
-       <label for="phone">
-        Phone number
-       </label>
-       <input id="phone" placeholder="09XX XXX XXXX" type="tel"/>
-      </div>
-      <div class="form-group">
-       <label for="role">
-        Role
-       </label>
-       <input disabled="" id="role" type="text" value="Tenant"/>
-      </div>
-      <button class="btn-primary" id="saveBtn">
-       Save changes
-      </button>
-     </div>
-    </section>
-   </main>
+      <section class="content">
+        <h1 class="page-title">My Profile</h1>
+        <p class="page-sub">Keep your HomeLink account information up to date.</p>
+        <div class="profile-panel role-profile">
+          <div class="profile-header">
+            <div class="profile-avatar" id="profile-avatar"><span>T</span></div>
+            <div class="profile-photo-section">
+              <label class="btn-secondary" for="avatar-input">Change photo</label>
+              <input accept="image/png,image/jpeg,image/jpg" hidden="" id="avatar-input" type="file"/>
+              <p class="hint">JPG or PNG, up to 5MB.</p>
+            </div>
+            <div class="profile-meta">
+              <span>Member since</span>
+              <strong id="member-since">&mdash;</strong>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="full-name">Full name</label>
+            <input id="full-name" type="text"/>
+          </div>
+          <div class="form-group">
+            <label for="email">Email address</label>
+            <input disabled="" id="email" type="email"/>
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone number</label>
+            <input id="phone" placeholder="09XX XXX XXXX" type="tel"/>
+          </div>
+          <div class="form-group">
+            <label for="role">Role</label>
+            <input disabled="" id="role" type="text" value="Tenant"/>
+          </div>
+          <button class="btn-primary" id="saveBtn">Save changes</button>
+        </div>
+
+        <div class="section-header"><h2>Your activity</h2></div>
+        <div class="stats stats-3">
+          <div class="stat-card"><div class="stat-icon bg-blue"><i class="fa-solid fa-building"></i></div><div><p class="stat-value" id="statA">0</p><p class="stat-label">Properties</p></div></div>
+          <div class="stat-card"><div class="stat-icon bg-rose"><i class="fa-solid fa-screwdriver-wrench"></i></div><div><p class="stat-value" id="statB">0</p><p class="stat-label">Open Requests</p></div></div>
+          <div class="stat-card"><div class="stat-icon bg-emerald"><i class="fa-solid fa-check"></i></div><div><p class="stat-value" id="statC">0</p><p class="stat-label">Completed</p></div></div>
+        </div>
+
+        <div class="panel security-panel">
+          <div class="security-info">
+            <h2 class="panel-title">Security</h2>
+            <p class="page-sub">Choose a new password for your account. Use at least 6 characters.</p>
+          </div>
+          <div class="security-form">
+            <div class="form-group">
+              <label for="new-password">New password</label>
+              <div class="password-wrap">
+                <input id="new-password" minlength="6" placeholder="New password" type="password"/>
+                <button onclick="togglePassword(this)" type="button"><i class="fa-regular fa-eye"></i></button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="confirm-password">Confirm password</label>
+              <div class="password-wrap">
+                <input id="confirm-password" minlength="6" placeholder="Confirm new password" type="password"/>
+                <button onclick="togglePassword(this)" type="button"><i class="fa-regular fa-eye"></i></button>
+              </div>
+            </div>
+            <button class="btn-primary" id="passwordBtn" type="button">Update password</button>
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-  </script>
-  <script src="../static/supabase.js">
-  </script>
-  <script src="../static/js/notifications.js">
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../static/supabase.js"></script>
+  <script src="../static/js/notifications.js"></script>
   <script>
-   let userId="";let avatarUrl="";
+let userId="";let avatarUrl="";
 const esc=v=>String(v??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]));
 const initials=name=>(name||"Tenant").trim().split(/\s+/).slice(0,2).map(x=>x[0]).join("").toUpperCase()||"T";
 function renderAvatar(){const name=document.getElementById("full-name").value||"Tenant";const markup=avatarUrl?`<img src="${esc(avatarUrl)}" alt="Profile photo">`:`<span>${esc(initials(name))}</span>`;document.getElementById("profile-avatar").innerHTML=markup;document.getElementById("top-avatar").innerHTML=markup}
-async function init(){const {data,error}=await window.supabaseClient.auth.getUser();if(error||!data.user){location.href="../index.html";return}userId=data.user.id;const p=await window.supabaseClient.from("profiles").select("full_name,email,role,phone,avatar_url").eq("id",userId).single();if(p.error||String(p.data?.role||"").toLowerCase()!=="tenant"){location.href="../index.html";return}document.getElementById("full-name").value=p.data.full_name||"";document.getElementById("email").value=p.data.email||data.user.email||"";document.getElementById("phone").value=p.data.phone||"";avatarUrl=p.data.avatar_url||"";document.getElementById("top-name").textContent=p.data.full_name||p.data.email||data.user.email||"Tenant";renderAvatar();await window.initHomeLinkNotifications()}
+function setStat(id,value){const el=document.getElementById(id);if(el)el.textContent=value}
+function setMemberSince(iso){const el=document.getElementById("member-since");if(!el||!iso)return;const d=new Date(iso);if(!isNaN(d.getTime()))el.textContent=d.toLocaleDateString("en-US",{month:"long",year:"numeric"})}
+async function loadStats(){try{const [p,r]=await Promise.all([window.supabaseClient.from("properties").select("id").eq("tenant_id",userId),window.supabaseClient.from("maintenance_requests").select("id,status").eq("tenant_id",userId)]);if(p.error||r.error)return;const rows=r.data||[];setStat("statA",(p.data||[]).length);setStat("statB",rows.filter(x=>x.status==="Open").length);setStat("statC",rows.filter(x=>x.status==="Completed").length)}catch(e){console.error(e)}}
+function togglePassword(button){const input=button.parentElement.querySelector("input");const show=input.type==="password";input.type=show?"text":"password";const icon=button.querySelector("i");if(icon)icon.className=show?"fa-regular fa-eye-slash":"fa-regular fa-eye"}
+async function init(){const {data,error}=await window.supabaseClient.auth.getUser();if(error||!data.user){location.href="../index.html";return}userId=data.user.id;const p=await window.supabaseClient.from("profiles").select("full_name,email,role,phone,avatar_url").eq("id",userId).single();if(p.error||String(p.data?.role||"").toLowerCase()!=="tenant"){location.href="../index.html";return}document.getElementById("full-name").value=p.data.full_name||"";document.getElementById("email").value=p.data.email||data.user.email||"";document.getElementById("phone").value=p.data.phone||"";avatarUrl=p.data.avatar_url||"";document.getElementById("top-name").textContent=p.data.full_name||p.data.email||data.user.email||"Tenant";renderAvatar();setMemberSince(data.user.created_at);loadStats();await window.initHomeLinkNotifications()}
 document.getElementById("avatar-input").addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file)return;if(file.size>5*1024*1024){alert("The image must be 5MB or smaller.");return}const path=userId+"/profile-"+Date.now()+"-"+file.name.replace(/[^a-zA-Z0-9._-]/g,"_");const up=await window.supabaseClient.storage.from("profile-avatars").upload(path,file,{upsert:true,contentType:file.type});if(up.error){alert(up.error.message);return}const pub=window.supabaseClient.storage.from("profile-avatars").getPublicUrl(path);avatarUrl=pub.data.publicUrl;renderAvatar()});
 document.getElementById("saveBtn").onclick=async()=>{const button=document.getElementById("saveBtn");button.disabled=true;button.textContent="Saving...";const r=await window.supabaseClient.from("profiles").update({full_name:document.getElementById("full-name").value.trim(),phone:document.getElementById("phone").value.trim(),avatar_url:avatarUrl||null}).eq("id",userId);button.disabled=false;button.textContent="Save changes";if(r.error){alert(r.error.message);return}document.getElementById("top-name").textContent=document.getElementById("full-name").value.trim()||"Tenant";renderAvatar();alert("Profile saved.")};
+document.getElementById("passwordBtn").onclick=async()=>{const pw=document.getElementById("new-password").value;const confirmPw=document.getElementById("confirm-password").value;if(pw.length<6){alert("Password must be at least 6 characters.");return}if(pw!==confirmPw){alert("Passwords do not match.");return}const button=document.getElementById("passwordBtn");button.disabled=true;button.textContent="Updating...";const r=await window.supabaseClient.auth.updateUser({password:pw});button.disabled=false;button.textContent="Update password";if(r.error){alert(r.error.message);return}document.getElementById("new-password").value="";document.getElementById("confirm-password").value="";alert("Your password has been updated.")};
 document.getElementById("logoutBtn").onclick=async e=>{e.preventDefault();await window.supabaseClient.auth.signOut();location.href="../index.html"};init();
   </script>
   <script>
-   (function(){
+(function(){
  const role=(document.body.dataset.role||"").toLowerCase();
  const profilePage={tenant:"profile.html",manager:"manager_profile.html",contractor:"contractor_profile.html"}[role];
  const user=document.querySelector(".topbar .user");
@@ -166,7 +142,6 @@ document.getElementById("logoutBtn").onclick=async e=>{e.preventDefault();await 
  }
 })();
   </script>
-  <script src="../static/js/popups.js">
-  </script>
- </body>
+  <script src="../static/js/popups.js"></script>
+</body>
 </html>
